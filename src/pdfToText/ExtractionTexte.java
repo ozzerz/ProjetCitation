@@ -22,6 +22,7 @@ import db.Auteur;
 public class ExtractionTexte {
 
 
+
 	File file;
 
 

@@ -3,6 +3,5 @@
  */
 /**
  * @author Ozzerz
- *
  */
 package pdfToText;
