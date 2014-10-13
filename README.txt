@@ -1,4 +1,25 @@
-Séance du 9 Octobre
+--------------------------------Hors Séance du 14 Octobre-------------------------------------------------
+
+- les fonctions de récupération de donnée semble correct -getCitations est donc débugué (aucun ajout en DB pour l'instant)
+Cependant lors de mes test sur le document Violence et médiation. Théorie de la segmentarité ou pratiques juridiques en Kabylie
+J'ai remarqué qu'il me manqué des citations j'ai donc regardé le .txt généré avec PDFBOX pour découvrir ceci
+La citation 9. est devenu 4. (donc j'en déduit que le chiffre 9 n'est pas bien "récupéré"
+10 deviens 1?
+VU que je cherche paragraphe par paragraphe , je ne trouve pas les citation 11 et 12 
+16 devient lft.
+Pour les meme raison je ne trouve donc pas la 17
+18 devient IX
+19 devient 14 (on peux donc vraiment en déduire que PDFBOX ne gére pas les "9"
+
+Je dois donc réfléchir à la maniére de passé outre
+Il me faut aussi réfléchir a comment avoir entiérement les citation lorsque celle ci sont sur plusieurs paragraphe
+
+Ma fonction est donc loin d'etre complete
+
+
+
+
+--------------------------------Séance du 9 Octobre-------------------------------------------------
 
 -Ajout de la fonction oeuvreDontExist(String nomAuteur,String nomOeuvre) qui me permet de savoir si une oeuvre n'est pas déja dans notre Base de données
 -Ajout de la fonction auteurDontExist(String nom) qui me permet de savoir si un auteur n'est pas déja dans notre Base de données
