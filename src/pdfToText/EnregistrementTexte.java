@@ -122,26 +122,7 @@ public class EnregistrementTexte {
                     while(!ligne.equals("Fin de paragraphe"))
                     {
 
-                        //System.out.println("ligne contient" +ligne);
-
-                        ligne=formaterNom(ligne);
-                        auteur.add(ligne);//permet d'avoir le nom de l'auteur pour ajouter son oeuvre
-                        //si l'auteur n'est pas déja dans la liste on l'ajoute
-                        if(auteurDontExist(ligne)){
-                        Element auteurElement = new Element("auteur");
-                        auteurElement.addContent(new Element("nom").setText(ligne));
-                        racine.addContent(auteurElement);
-                        //auteur.add(ligne);//permet d'avoir le nom de l'auteur
-                        enregistreXML();
-                        System.out.println("ajout de "+ligne);
-                        ligne =br.readLine();//on a nom+prenom d'un auteur
-                        }
-                        else
-                        {
-                        	 ligne =br.readLine();//on a nom+prenom d'un auteur
-
-                        }
-
+                    	ligne=testGetAuteur(br , ligne ,racine);
 
                     }
                     fin=false;//on a trouvé tout les auteurs
@@ -163,6 +144,39 @@ public class EnregistrementTexte {
         return br;
     }
 
+    /**
+     * enregistre l'auteur si necessaire
+     * @param br le lecteur de texte
+     * @param ligne la ligne actuel du texte
+     * @param racine la racine de notre base de donnée
+     * @return la prochaine ligne
+     * @throws IOException
+     */
+    private String testGetAuteur(BufferedReader br , String ligne ,Element racine) throws IOException
+    {
+
+    	 //System.out.println("ligne contient" +ligne);
+
+        ligne=formaterNom(ligne);
+        auteur.add(ligne);//permet d'avoir le nom de l'auteur pour ajouter son oeuvre
+        //si l'auteur n'est pas déja dans la liste on l'ajoute
+        if(auteurDontExist(ligne)){
+        Element auteurElement = new Element("auteur");
+        auteurElement.addContent(new Element("nom").setText(ligne));
+        racine.addContent(auteurElement);
+        //auteur.add(ligne);//permet d'avoir le nom de l'auteur
+        enregistreXML();
+        System.out.println("ajout de "+ligne);
+        ligne =br.readLine();//on a nom+prenom d'un auteur
+        }
+        else
+        {
+        	 ligne =br.readLine();//on a nom+prenom d'un auteur
+
+        }
+
+    	return ligne;
+    }
 
 
 
@@ -430,7 +444,7 @@ catch (Exception e)
     		if(recherche.indexOf(".",i+1)==-1)
     		{
     			//il faut arrété la rechercher maintenant ,
-    			//System.out.println("on arrive la");
+    			System.out.println("on arrive la");
     			i++;
     		}
     		else{
