@@ -1,3 +1,12 @@
+--------------------------------Séance du 17 Octobre-------------------------------------------------
+Ajout de fonction  testAjoutAuteur permettant d'ajouter un auteur si nécessaire
+Ajout de fonction  testAjoutTitre permettant d'ajouter un auteur si nécessaire
+
+
+
+
+
+
 --------------------------------Hors Séance du 14 Octobre-------------------------------------------------
 
 - les fonctions de récupération de donnée semble correct -getCitations est donc débugué (aucun ajout en DB pour l'instant)

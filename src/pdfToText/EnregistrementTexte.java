@@ -122,7 +122,7 @@ public class EnregistrementTexte {
                     while(!ligne.equals("Fin de paragraphe"))
                     {
 
-                    	ligne=testGetAuteur(br , ligne ,racine);
+                    	ligne=testAjoutAuteur(br , ligne ,racine);
 
                     }
                     fin=false;//on a trouvé tout les auteurs
@@ -152,7 +152,7 @@ public class EnregistrementTexte {
      * @return la prochaine ligne
      * @throws IOException
      */
-    private String testGetAuteur(BufferedReader br , String ligne ,Element racine) throws IOException
+    private String testAjoutAuteur(BufferedReader br , String ligne ,Element racine) throws IOException
     {
 
     	 //System.out.println("ligne contient" +ligne);
@@ -215,43 +215,11 @@ public class EnregistrementTexte {
                 }
 
 
-
-
-            }
-
-            for(int j=0;j<auteur.size();j++){
-                //ici on ajoute le titre pour chaque auteur
-            	/*System.out.println("-------------------TEST--------------");
-            	for(int k =0;k<auteur.size();k++)
-            	{
-            		System.out.println(auteur.get(k));
-            	}
-            	System.out.println("-------------------TEST--------------");
-			*/
-
-                java.util.List<Element> lesauteurs=racine.getChildren();
-                //il faut chercher dans cette liste l'auteur dont le nom est auteur.get(j)
-                 Iterator i = lesauteurs.iterator();
-                 while(i.hasNext())
-                 {
-
-                	 Element courant = (Element)i.next();
-                    if(courant.getChild("nom").getText().equals(auteur.get(j)))
-                    {
-                       //alors on ajoute l"oeuvre
-                       if(oeuvreDontExist(auteur.get(j),result)){
-                    	System.out.println("sur l'auteur "+courant.getChild("nom").getText());
-                    	Element oeuvre = new Element("oeuvre");
-                        oeuvre.setAttribute("nom",result);
-                        courant.addContent(oeuvre);
-                        System.out.println("ajout de "+result +" pour l'auteur "+auteur.get(j));
-                       }
-
-                    }
-                 }
-
+                testAjoutTitre(racine,result);
 
             }
+
+
 
         }
         catch (Exception e){
@@ -261,6 +229,38 @@ public class EnregistrementTexte {
         return br;
     }
 
+    /**
+     * enregistre le titre si necessaire
+     * @param racine la racine du document
+     * @param result le titre
+     */
+    private void testAjoutTitre(Element racine,String titre)
+    {
+    	 for(int j=0;j<auteur.size();j++){
+
+             java.util.List<Element> lesauteurs=racine.getChildren();
+             //il faut chercher dans cette liste l'auteur dont le nom est auteur.get(j)
+              Iterator i = lesauteurs.iterator();
+              while(i.hasNext())
+              {
+
+             	 Element courant = (Element)i.next();
+                 if(courant.getChild("nom").getText().equals(auteur.get(j)))
+                 {
+                    //alors on ajoute l"oeuvre
+                    if(oeuvreDontExist(auteur.get(j),titre)){
+                 	Element oeuvre = new Element("oeuvre");
+                     oeuvre.setAttribute("nom",titre);
+                     courant.addContent(oeuvre);
+                    }
+
+                 }
+              }
+
+
+         }
+
+    }
 
 
     private BufferedReader getCitation(String nomFichier , BufferedReader br)
