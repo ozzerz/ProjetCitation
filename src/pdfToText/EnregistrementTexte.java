@@ -122,7 +122,9 @@ public class EnregistrementTexte {
                     while(!ligne.equals("Fin de paragraphe"))
                     {
 
-                    	ligne=testAjoutAuteur(br , ligne ,racine);
+                    	 ligne=formaterNom(ligne);
+                         auteur.add(ligne);//permet d'avoir le nom de l'auteur pour ajouter son oeuvre
+                         ligne =br.readLine();//on a nom+prenom d'un auteur
 
                     }
                     fin=false;//on a trouvé tout les auteurs
@@ -144,39 +146,6 @@ public class EnregistrementTexte {
         return br;
     }
 
-    /**
-     * enregistre l'auteur si necessaire
-     * @param br le lecteur de texte
-     * @param ligne la ligne actuel du texte
-     * @param racine la racine de notre base de donnée
-     * @return la prochaine ligne
-     * @throws IOException
-     */
-    private String testAjoutAuteur(BufferedReader br , String ligne ,Element racine) throws IOException
-    {
-
-    	 //System.out.println("ligne contient" +ligne);
-
-        ligne=formaterNom(ligne);
-        auteur.add(ligne);//permet d'avoir le nom de l'auteur pour ajouter son oeuvre
-        //si l'auteur n'est pas déja dans la liste on l'ajoute
-        if(auteurDontExist(ligne)){
-        Element auteurElement = new Element("auteur");
-        auteurElement.addContent(new Element("nom").setText(ligne));
-        racine.addContent(auteurElement);
-        //auteur.add(ligne);//permet d'avoir le nom de l'auteur
-        enregistreXML();
-        System.out.println("ajout de "+ligne);
-        ligne =br.readLine();//on a nom+prenom d'un auteur
-        }
-        else
-        {
-        	 ligne =br.readLine();//on a nom+prenom d'un auteur
-
-        }
-
-    	return ligne;
-    }
 
 
 
@@ -214,7 +183,7 @@ public class EnregistrementTexte {
 
                 }
 
-
+                //result=result.trim();
                 testAjoutTitre(racine,result);
 
             }
@@ -237,26 +206,46 @@ public class EnregistrementTexte {
     private void testAjoutTitre(Element racine,String titre)
     {
     	 for(int j=0;j<auteur.size();j++){
-
-             java.util.List<Element> lesauteurs=racine.getChildren();
-             //il faut chercher dans cette liste l'auteur dont le nom est auteur.get(j)
-              Iterator i = lesauteurs.iterator();
+    		 boolean exist=false;
+             java.util.List<Element> lesoeuvre=racine.getChildren();
+             //il faut chercher dans cette liste verifier si l'oeuvre existe déja
+              Iterator i = lesoeuvre.iterator();
               while(i.hasNext())
               {
 
              	 Element courant = (Element)i.next();
-                 if(courant.getChild("nom").getText().equals(auteur.get(j)))
+                 if(courant.getAttributeValue("nom").equals(titre)||exist)
                  {
-                    //alors on ajoute l"oeuvre
-                    if(oeuvreDontExist(auteur.get(j),titre)){
-                 	Element oeuvre = new Element("oeuvre");
-                     oeuvre.setAttribute("nom",titre);
-                     courant.addContent(oeuvre);
-                    }
-
+                    //alors l'oeuvre a déja etait ajouté
+                	 System.out.println("on renvoie true");
+                    exist=true;
+                 }
+                 else
+                 {
+                	 System.out.println("on renvoie false :"+courant.getAttribute("nom")+" pour le titre :"+titre);
                  }
               }
+              //si l'oeuvre n'existe pas on l'ajoute
+              	if(!exist)
+              	{
 
+              		Element oeuvre = new Element("oeuvre");
+              		titre=titre.trim();
+                    oeuvre.setAttribute("nom",titre);
+                    //ici on ajoute comme fils les auteurs
+                    for(int k=0;k<auteur.size();k++)
+                    {
+                    	 Element auteurElement = new Element("auteur");
+                         auteurElement.setAttribute("nom",auteur.get(k));
+                         oeuvre.addContent(auteurElement);
+                    }
+                    //on l'ajoute au document XML
+                    racine.addContent(oeuvre);
+                    enregistreXML();//on sauvegarde les changement
+
+
+
+              	}
 
          }
 
@@ -513,7 +502,7 @@ catch (Exception e)
      */
     private void creationXML()
     {
-         Element racine = new Element("auteurs");
+         Element racine = new Element("oeuvres");
          Document document = new Document(racine);
          try
            {
@@ -540,81 +529,8 @@ catch (Exception e)
 
     }
 
-    /**
-     * permet de determiné si l'auteur existe déja dans la BDD
-     * @param nom le nom de l'auteur
-     * @return
-     */
-    public boolean auteurDontExist(String nom)
-    {
-    	 Element racine = doc.getRootElement();
-    	 java.util.List<Element> lesauteurs=racine.getChildren();
-          Iterator i = lesauteurs.iterator();
-          while(i.hasNext())
-          {
-        	  Element courant = (Element)i.next();
-        	  String nomT=courant.getChild("nom").getText().trim();
-         	// System.out.println("noeud "+courant.getChildText("nom"));
-             if(nomT.equals(nom.trim()))
-             {
-            	 //System.out.println("l'auteur existe déja");
-            	 return false;
-             }
-             else
-             {
-             }
-
-          }
-
-    	return true;
-    }
 
 
-    /**
-     *  permet de vérifier qu'une oeuvre n'existe pas déja dans la db
-     * @param nom
-     * @return
-     */
-    public boolean oeuvreDontExist(String nomAuteur,String nomOeuvre)
-    {
-
-   	 Element racine = doc.getRootElement();
-   	 java.util.List<Element> lesauteurs=racine.getChildren();
-         Iterator i = lesauteurs.iterator();
-        //System.out.println("avant premier while");
-         while(i.hasNext())
-         {
-       	  Element courant = (Element)i.next();
-       	  String nomT=courant.getChild("nom").getText().trim();
-            if(nomT.equals(nomAuteur.trim()))
-            {
-           	//ici on a trouvé le bon auteur , on récupére donc toute ses oeuvre
-            	java.util.List<Element> lesOeuvres=courant.getChildren("oeuvre");
-            	//System.out.println("lesoeuvree"+lesOeuvres.size());
-            	Iterator j = lesOeuvres.iterator();
-                //System.out.println("avant deuxiéme while");
-                while (j.hasNext())
-                {
-
-                	Element oeuvreCourante =(Element)j.next();
-                	//System.out.println("nom oeuvre"+oeuvreCourante.getContentSize());
-                	if(oeuvreCourante.getAttributeValue("nom").equals(nomOeuvre))
-                	{
-                		System.out.println("OEuvre existe déja");
-                		return false;
-                	}
-
-
-                }
-
-
-            }
-
-
-         }
-
-    	return true;
-    }
 
 
 
