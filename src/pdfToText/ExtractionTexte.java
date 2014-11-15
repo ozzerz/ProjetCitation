@@ -77,7 +77,7 @@ public class ExtractionTexte {
 				pdfStripper.setParagraphStart(System.getProperty("line.separator")+"Debut de paragraphe"+System.getProperty("line.separator"));
 
 				//ajout d'un"fin de paragraphe"
-				pdfStripper.setParagraphEnd("Fin de paragraphe"+System.getProperty("line.separator"));
+				pdfStripper.setParagraphEnd(System.getProperty("line.separator")+"Fin de paragraphe"+System.getProperty("line.separator"));
 				//pdfStripper.setEndPage(2);
 
 				parsedText = pdfStripper.getText(pdDoc);//récupération du texte

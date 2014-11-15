@@ -1,6 +1,8 @@
 --------------------------------Séance du 17 Octobre-------------------------------------------------
 Ajout de fonction  testAjoutAuteur permettant d'ajouter un auteur si nécessaire
 Ajout de fonction  testAjoutTitre permettant d'ajouter un auteur si nécessaire
+Suprresion fonction OeuvreDontExist , AuteurDontExist car plus nécessaire avec le noouveau format XML + on enregistre sous le nouveau format
+préparation sur feuille du nouvel algo de recherche de citation pour prendre en compte qu'elle ne commence pas forcement en début de paragraphe
 
 
 

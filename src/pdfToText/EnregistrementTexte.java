@@ -1,7 +1,6 @@
 package pdfToText;
 
 
-import java.awt.List;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -12,6 +11,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.lang.Character.Subset;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.regex.Matcher;
@@ -23,7 +24,6 @@ import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
-import db.Auteur;
 /**
  * Permet d'enregistrer les .txt contenants les information qui nous intéresse
  * @author Ozzerz
@@ -35,6 +35,12 @@ public class EnregistrementTexte {
     private ExtractionTexte et;//la transformation en texte
     private ArrayList<String> auteur;//contiendra le/les auteur du texte actuel (réinitialiser avant chaque nouveau fichier)
     private Document doc;//contiendra le document de la BDD
+    private int numeroCitation;//permettra de connaitre le numero de la prochaine citation que l'on cherche
+    private ArrayList<String> citations;//contiendra toute les citations d'un texte
+    private ArrayList<String> numeros;//contiendra toute les citations d'un texte
+    private ArrayList<String> citationsPossible;//on stocke l'endroit ou il y a possiblement des citations
+    private ArrayList<String> nonCitations;//on stocke le reste
+
 
     public EnregistrementTexte(ArrayList<String> texte)
     {
@@ -58,10 +64,11 @@ public class EnregistrementTexte {
         {
             //auteur=new ArrayList<String>();
             nomFichier=(lesTextes.get(i).substring(0, lesTextes.get(i).length()-3))+"txt";
+            System.out.println("nom = "+nomFichier);
             et=new ExtractionTexte(lesTextes.get(i));
             et.creationFichier(et.pdftoText(),nomFichier);
-            System.out.println(i);
             getAllInfo(nomFichier);
+            //calculLigne(nomFichier);
 
         }
         }
@@ -74,13 +81,75 @@ public class EnregistrementTexte {
 
     }
 
+
+    public int compteMot(String ligne)
+    {
+
+    	int retour =0;
+    	ligne=ligne.trim();
+    	int depuis =0;
+    	while (ligne.indexOf(' ',depuis)!=-1)
+    	{
+    		depuis =ligne.indexOf(' ',depuis)+1;
+    		retour++;
+    		//System.out.println("on incrémente avec l'index "+ligne.indexOf(' ',depuis));
+    	}
+
+    	//System.out.println("pour la ligne "+ligne+" on renvoie "+retour+ "la ligne est de taille "+ligne.length());
+    	return retour+1;
+
+    }
+
+    public void calculLigne(String nomFichier)
+    {
+    	int nbMot=0;
+    	int retourTotal=0;
+
+    	try{
+    		FileWriter fw = new FileWriter (nomFichier+"ligne");
+			BufferedWriter bw = new BufferedWriter (fw);
+			PrintWriter fichierSortie = new PrintWriter (bw);
+			InputStream ips=new FileInputStream(nomFichier);
+			InputStreamReader ipsr=new InputStreamReader(ips);
+			BufferedReader br=new BufferedReader(ipsr);
+			String ligne;
+			while ((ligne=br.readLine())!=null){
+				retourTotal=0;
+				if(ligne.equals("Debut de paragraphe"))
+				{
+					ligne=br.readLine();
+
+					while (!ligne.contains("Fin de paragraphe"))
+					{
+						nbMot=compteMot(ligne);
+						retourTotal=retourTotal+nbMot;
+						fw.write (ligne +" "+nbMot+"\n");
+						ligne=br.readLine();
+
+					}
+					System.out.println("on sort du while");
+					fw.write (retourTotal+"\n");
+
+				}
+
+
+			}
+			br.close();
+		}
+		catch (Exception e){
+			System.out.println(e.toString());
+		}
+
+    }
+
+
     /**
      * récupérra toute les information nécessaire
      * @param nomFichier le nom du fichier
      */
     private void getAllInfo(String nomFichier)
     {
-        InputStream ips;
+    	InputStream ips;
         try {
             ips = new FileInputStream(nomFichier);
             InputStreamReader ipsr=new InputStreamReader(ips);
@@ -93,7 +162,6 @@ public class EnregistrementTexte {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
 
 
     }
@@ -217,12 +285,8 @@ public class EnregistrementTexte {
                  if(courant.getAttributeValue("nom").equals(titre)||exist)
                  {
                     //alors l'oeuvre a déja etait ajouté
-                	 System.out.println("on renvoie true");
+
                     exist=true;
-                 }
-                 else
-                 {
-                	 System.out.println("on renvoie false :"+courant.getAttribute("nom")+" pour le titre :"+titre);
                  }
               }
               //si l'oeuvre n'existe pas on l'ajoute
@@ -262,8 +326,11 @@ public class EnregistrementTexte {
              ArrayList<String> citationsParagrapheEnCours= new ArrayList<String>();
              //tant qu'on a pas trouvé les auteurs
              while ((ligne=br.readLine())!=null){
+            	// System.out.println("on a pas encore nul");
+
                  if(ligne.equals("Debut de paragraphe"))
-                 {	 result="";
+                 {
+                	 result="";
                      ligne =br.readLine();
                      while(!ligne.equals("Fin de paragraphe"))
                      {
@@ -273,28 +340,23 @@ public class EnregistrementTexte {
 
                      }
                      result=result.trim();
-                     //System.out.println("pour result "+result+ "   on a "+isCitations(result));
+                    // System.out.println("result "+result);
                  //ici on a récupéré l'ensemble du texte
                      if(isCitations(result)){
                     	  //System.out.println("ici?");
                     	 //ici il faut ajouter les citations à la liste pas la remplacer a chaque fois
 
-                    	 citationsParagrapheEnCours=getCitations(result);
-
-
-                    	//on ajoute chaque citation dans la liste contenant toutes les citations
-                    	 for(int k =0;k<citationsParagrapheEnCours.size();k++)
-                    	 {
-                    		 citations.add(citationsParagrapheEnCours.get(k));
-
-                    	 }
-
+                    	//System.out.println("on a récupéré "+result);
+                    	citations=splitCitation(result,citations);
 
 
                      }
-                     //si ce n'est pas une citation on a besoin de rien faire
+                    // System.out.println("on sort du test de citation");
+                     //si ce n'est pas une citation  les ajouter dans une liste conteant le reste du texte
                  }
+
              }
+
     	 }
 catch (Exception e)
 {
@@ -303,20 +365,109 @@ catch (Exception e)
 
 
     	 //partie pour voir ce que l'on obtiens
-    	 System.out.println("-----------TEST-------------");
+
+    	 System.out.println("-----------TEST AVANT-------------");
     	 for(int i=0;i<citations.size();i++)
     	 {
-    		 System.out.println(citations.get(i));
-    	 }
 
-    	 System.out.println("-----------TEST-------------");
+    		 System.out.println(citations.get(i));}
 
+
+    	 System.out.println("-----------TEST AVANT-------------");
+    	 System.out.println("-----------TEST APRES-------------");
+    	 citations=organiseListe(citations);
+    	 for(int i=0;i<citations.size();i++)
+    	 {
+
+    		 System.out.println(citations.get(i));}
+
+
+    	 System.out.println("-----------TEST APRES-------------");
 
 
     	return br;
     }
 
-    /**
+    private ArrayList<String> splitCitation(String ligne,
+			ArrayList<String> citations) {
+    	//System.out.println("taille ligne == "+ligne.length());
+    	Pattern p = Pattern.compile("^[a-z0-9]*");
+    	int position=0;
+    	int nextCitationStart=0;
+    	int point = ligne.indexOf(".");
+    	int pointavant=0;
+    	int debutCitation=0;
+    	String ligneT;
+    	String recherche;
+    	boolean passeWhile=false;
+    	String ajout=null;
+    	boolean debutcitationOk=false;
+
+
+    		//on cherche le debut de citation actuel
+    		ligneT=ligne.substring(pointavant,point);
+    		Matcher m = p.matcher(ligneT);
+    		if(ligneT.length()<=3&&m.matches())
+    		{
+    			debutCitation=point;
+    		}
+    		else
+    		{
+    			//dans ce cas on doit chercher le début de la citation
+				while(point!=-1&&!debutcitationOk)
+				{
+					point = ligne.indexOf(".",point+1);
+					//on a besoin du dernier espace avant le point trouvé : ligne.substring(point).lastIndexOf(" ")
+					ligneT=ligne.substring(ligne.substring(point).lastIndexOf(" "),point);
+					Matcher m2 = p.matcher(ligneT);
+					if(m2.matches())
+					{
+						//si on la trouvé
+						debutCitation=point;
+						debutcitationOk=true;
+					}
+
+
+				}
+
+    		}
+
+    	//System.out.println("debutCitation= "+debutCitation);
+    	position=debutCitation+1;
+    	while(nextCitations(ligne, position)!=-1)
+    	{	//System.out.println("next citation renvoie "+nextCitations(ligne, position));
+    		nextCitationStart=nextCitations(ligne, position);
+    		ajout=ligne.substring(position-(ligneT.length()+1),nextCitationStart).trim();
+    		citations.add(ajout);
+    		System.out.println("dans le while on ajoute "+(ajout));
+    		position=nextCitationStart+1;
+
+    		//ligne=ligne.substring(position);
+    		passeWhile=true;
+
+    	}
+    	//System.out.println("on sort du while "+position +" "+ligne.length());
+    	//System.out.println("on trouve le string "+ligne.substring(position,ligne.length()));
+    	if(!passeWhile){
+    		ajout=ligne.substring(position-(ligneT.length()+1),ligne.length()).trim();
+    	citations.add(ajout);
+    	System.out.println("a la fin on ajoute "+(ajout));
+    	}
+    	else
+    	{
+    		ajout=ligne.substring(position,ligne.length()).trim();
+    		citations.add(ajout);
+        	System.out.println("a la fin on ajoute "+(ajout));
+    	}
+
+
+
+
+		return citations;
+	}
+
+
+	/**
      * Permet de savoir si le paragraphe que l'on traite actuellement contient des citations
      * @param ligne
      * @return true si c'est une citation , false sinon
@@ -325,25 +476,89 @@ catch (Exception e)
     private boolean isCitations(String ligne) throws InterruptedException{
     	//chaque citation commence par la forme XX.
     	int point = ligne.indexOf(".");
-
+    	int pointavant=0;
+    	String ligneT;
+    	//System.out.println("on cherche avec la ligne "+ligne);
+    	Pattern p = Pattern.compile("^[a-z0-9]*");
+    	//System.out.println("ligne ="+ligne);
     	if(point==-1){
     		//si il n'y a pas de "." alors ca ne peut pas être une citation
     		//on considére qu'il n'y aura jamais + de 1000 citation par texte
     		return false;
     	}
-    	String nombre=ligne.substring(0, point);//on récupuére ce qu'il y a avant le point
-    	nombre=nombre.trim();
-    	//on préare la regex
-    	Pattern p = Pattern.compile("[0-9]*");
-    	Matcher m = p.matcher(nombre);
-    	//System.out.println("ligne"+ligne+" on a "+  m.matches()+"on donne en sous chaine "+nombre);
-    	//Thread.sleep(4000);
-    	//System.out.println("pour la ligne "+ligne+" on a"+m.matches());
-    	//System.out.println("on récupére "+m.matches());
+    	while(point!=-1)
+    	{	//System.out.println("la1");
 
-    	return m.matches();
+    		//on récupére ce qu'il y a avant le point
+    		//on commence par faire une sous chaine du debut jusqu'au point
+    			//on récupére ce qu'il y a avant le point
+    			if(point==pointavant)
+    			{
+    				//dans ce cas le point est a la position 0
+    				ligneT="plusde4commecaOnChercheLeProchain";
+    			}
+    			else
+    				{ligneT=ligne.substring(pointavant, point);
+    			//System.out.println("la2");
+    			}
+    			//System.out.println("premier while + ligneT "+ligneT);
+    			//System.out.println("point avant "+pointavant+" pointapres "+point);
+    			//System.out.println(ligneT);
+    			if(ligneT.length()<=3)
+    			{
+
+    				return true;//dans ce cas on sais qu'il y a des citations , sinon on continue de chercher
+    			}
+    			else
+    			{
+    				pointavant= point;
+    				point = ligne.indexOf(".",point+1);
+    				//System.out.println("la3");
+
+    					//tant que l'on a pas fini de chercher
+    					while (point!=-1)
+    					{
+
+    						ligneT=ligne.substring(pointavant, point);//on récupére l'ensemble jusqu'au prochain point
+    						//System.out.println("deuxieme while + ligneT "+ligneT);
+    						if(ligneT.lastIndexOf(' ')==-1)
+    						{
+    							//System.out.println("renvoie true");
+    							return false;
+    						}
+    						ligneT=ligneT.substring(ligneT.lastIndexOf(' '), ligneT.length());//on récupére juste le point
+    						//System.out.println("deuxieme passage deuxieme while + ligneT "+ligneT);
+    						//on doit également vérifié que ca ne contiens pas d'espace
+    						Matcher m = p.matcher(ligneT);
+    						//System.out.println(ligneT);
+    						boolean casFauxPositif = ligneT.equals(" p")||ligneT.equals("(éd.");//ici on va géré les "faux positif"
+    						//System.out.println(casFauxPositif);
+    						if(ligneT.length()<=3&&m.matches()&&ligneT.length()>0&&!casFauxPositif)
+    		    			{
+
+    		    				return true;//dans ce cas on sais qu'il y a des citations , sinon on continue de chercher
+    		    			}
+    						else
+    						{
+    							pointavant= point;
+    		    				point = ligne.indexOf(".",point+1);
+
+    						}
+
+    					}
+
+
+
+    			}
+
+    	return false;
+
+
+    	}
+		return false;
+
     }
-
+/* pour l'instant inutile
     private ArrayList<String> getCitations(String ligne)
     {
     	ArrayList<String> citations= new ArrayList<String>();
@@ -358,12 +573,10 @@ catch (Exception e)
     		String numero=ligne.substring(0,premierP);
     		int numProchaineCitation =(Integer.parseInt(numero))+1;
     		int stop= nextCitations(ligne,0,String.valueOf(numProchaineCitation));
-    		//System.out.println("ligne= "+ligne+" de taille "+ligne.length()+"stop renvoie "+stop);
     		if(stop!=-1)
     		{
     		String citation=ligne.substring(0,stop);//<==Bloque a cette ligne
     		citations.add(citation);
-    		//System.out.println("on a ajouter la citation "+citation);
     		//pour toutes les autres avant la derniere;
 
     		int depart=stop;
@@ -414,55 +627,94 @@ catch (Exception e)
     		//System.out.println("on renvoie une liste de taille "+citations.size());
     	return citations;
     }
-
+*/
     /**
      * renvoie la position du debut de la prochaine citation
      * @param position la position de la derniere citation trouvé
-     * @param nombreRechercher le numero de la citation voulue
      * @param ligne le paragraphe ou l'on chercher
      * @return -1 si il n'y a plus de citation sinon renvoie la position de la prochaine citation
      */
-    private int nextCitations(String ligne,int position,String nombreRechercher)
+    private int nextCitations(String ligne,int position)
     {
-    	int retour=-1;
+
     	boolean verif=true;
     	int i=0;
+    	String numero;
+    	int pointAvant=0;
+    	int point=0;
+    	int testE;
+    	boolean fauxPositif=true;
+    	int taille = 0;
     	String recherche=ligne.substring(position);
+    	System.out.println("recherche ="+recherche);
+    	Pattern p = Pattern.compile("[0-9]*");
     	while(recherche.indexOf(".",i)!=-1&&verif){
     		//System.out.println("on plante sur test en fait");
     		if(recherche.indexOf(".",i+1)==-1)
     		{
     			//il faut arrété la rechercher maintenant ,
-    			System.out.println("on arrive la");
-    			i++;
+    			//System.out.println("arrétons la recherche");
+    			return -1;
     		}
-    		else{
-    		String test=recherche.substring(recherche.indexOf(".",i)-nombreRechercher.length(),recherche.indexOf(".",i));//on récupére le numéro de la citation
-    		//System.out.println("pour nb recherche= "+nombreRechercher+" test "+test);
-    		//System.out.println("test= "+test);
-    		//System.out.println("pour le nombre "+nombreRechercher+"recherche "+recherche);
-    		if(test.equals(nombreRechercher))
-    		{
-    			retour=recherche.indexOf(".",i)-nombreRechercher.length();//la position de la prochaine citation
-    			//System.out.println("recherche.indexOf " +recherche.indexOf(".",i));
-    			//System.out.println("retour "+retour);
-    			verif=false;//on arrete de chercher
+    		else{	pointAvant=point;
+    				point = recherche.indexOf(".",i);
+    				testE = recherche.substring(pointAvant, point).lastIndexOf(" ");
+    				System.out.println("point "+point);
+    				System.out.println("testE "+testE+ " la chaine= "+recherche.substring(pointAvant, point));
+    				//System.out.println("pointavant "+pointAvant);
+    				//on récupére le "numero" avant le prochain point
+    				if(testE==-1){
+    					numero = recherche.substring(pointAvant, point);
+    					System.out.println("IF  numero ="+numero);
+    				}
+    				else
+    				{
+    					numero = recherche.substring(testE+pointAvant, point);
+    					numero = numero.trim();
+    					taille=numero.length();
+    					System.out.println("ELSE  numero ="+numero);
+    				}
+    				//on verifie si on a le resultat
+    				System.out.println("numero= "+numero);
+    				Matcher m = p.matcher(numero);
+    				fauxPositif=!numero.equals("p")&&!numero.equals("vol")&&!numero.equals("op")&&!numero.equals("cit")&&!numero.equals("u")&&!numero.equals("cf")&&!numero.equals("etc")&&!numero.equals("Cf");
+    				System.out.println("le match "+m.matches()+ " num = p "+!numero.equals("p")+" la taille "+numero.length());
+    				if(m.matches()&&fauxPositif&&numero.length()<=3)
+    				{
+    					System.out.println("on renvoie le point "+point);
 
-    		}
-    		else
-    		{
-    			i++;//on continue a chercher
-    		}
+    					return point-taille+position;
+
+    				}
+    				else
+    				{
+    					//on continue a chercher
+    					System.out.println("le else");
+    					//pointAvant=point;
+    					//dans le cas ou on  a trouve une page il faut ignorer ce qu'il y a avant le prochain point car il s'agira du numero de page
+    					//System.out.println("on met precedent p a"+numero.equals("p"));
+    					if(numero.equals("p")||numero.equals("chap"))
+    					{	System.out.println("on est rentré dans le egale p point ="+point);
+    						i = point +1;
+    						point =recherche.indexOf(".",i);
+    						System.out.println("point = "+point);
+    					}
+    					pointAvant=point+1;
+    					i = point +1;
+    					//System.out.println("i devient "+i);
+    					//pointAvant=point+1;
+    					//System.out.println("point avant devient "+pointAvant);
+    				}
+
+
+
     	}
 
     	}
-    	if(verif)
-    	{
-    		return -1;
-    	}
-    	else{
-    	return retour+position;
-    	}
+
+    		//System.out.println("on renvoie "+retour);
+    	return -1;
+
     }
 
     /**
@@ -530,9 +782,117 @@ catch (Exception e)
     }
 
 
+    public void creationListeNumero()
+    {
+    	//on ajout de 1 a 8
+    	for (int i=1;i<9;i++)
+    	{
+    		numeros.add(Integer.toString(i));
+    	}
+    	numeros.add("4");
+    	numeros.add("1?");
+    	for (int i=11;i<17;i++)
+    	//de 11 a 17
+    	{
+    		numeros.add(Integer.toString(i));
+    	}
+    	numeros.add("IX");
+    	numeros.add("14");
+    	for (int i=20;i<70;i++)
+        	//de 60 a 68
+        	{
+        		numeros.add(Integer.toString(i));
+        	}
+
+
+    }
+
+    /**
+     * Permet de modifier la liste de citation pour supprimer les doublons , mettre les numero de citations au bon endroit si necessaire
+     * @param citations la liste des citations
+     * @return la liste des citations réorganiser
+     */
+    public ArrayList<String> organiseListe(ArrayList<String>citations ){
+
+    	String numero;
+    	Pattern p = Pattern.compile("[0-9]*");
+
+    	for(int i=0;i<citations.size();i++)
+    	{
+    		if(citations.get(i).length()<=3)
+    		{
+    			//on verifie si l'element d'apres de la liste a son numero
+    			if(citations.get(i+1).indexOf(".")!=-1){
+    			numero=citations.get(i+1).substring(0,citations.get(i+1).indexOf("."));
+    			Matcher m=p.matcher(numero);
+
+    			if(numero.length()<=3&&m.matches())
+    			{
+    				citations.remove(i);
+    			}
+    			else
+    			{citations.set(i,citations.get(i)+". "+citations.get(i+1));
+				citations.remove(i+1);
+
+    			}
+    			}
+
+    		}
+
+    	}
+
+    	//dans ce deuxieme tour on va réunir ce qu'il reste , (des erreur du au "p.")
+    	for(int i=0;i<citations.size();i++)
+    	{
+    		//si la citations commence par un.
+    		if(citations.get(i).startsWith("."))
+    		{
+    			//alors on l'attache a celle d'avant
+    			citations.set(i-1, citations.get(i-1)+citations.get(i).substring(1));
+    			citations.remove(i);
+    			i--;
+
+    		}
+    		//si elle commence par un p
+    		if(citations.get(i).startsWith("p"))
+    		{
+    			//alors on l'attache a celle d'avant
+    			citations.set(i-1, citations.get(i-1)+citations.get(i));
+    			citations.remove(i);
+    			i--;
+
+    		}
+    		if(citations.get(i).length()<=3)
+    		{
+    			citations.remove(i);
+    		}
+
+    			//si il n'y a pas de point ou si ce qu'il y a avant le point n'est pas matché
+    			int point =citations.get(i).indexOf(".");
+    		if(point!=-1){
+    			numero=citations.get(i).substring(0,point);
+    			Matcher m=p.matcher(numero);
+
+    			if(!m.matches()){
+    			citations.set(i-1, citations.get(i-1)+citations.get(i));
+    			citations.remove(i);
+    			i--;
+    			}
+    		}
+    		else
+    		{
+    			citations.set(i-1, citations.get(i-1)+citations.get(i));
+    			citations.remove(i);
+    			i--;
+    		}
 
 
 
+
+    	}
+
+    	return citations;
+    }
 
 
 }
