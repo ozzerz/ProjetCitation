@@ -3,7 +3,7 @@
 -Ajout de la fonction pour s'assurer que les citations sont ajouter une seule fois
 -Test effectué sur l'ensemble des citations , probléme trouvé : parfois c'est trés bien , parfois il n'y a rien
 -Recherche pour résoudre le probléme précedent
-
+-Augmentation du nombre de citation trouve
 
 
 

@@ -426,18 +426,18 @@ public class EnregistrementTexte {
 
                      }
                      result=result.trim();
-                    // System.out.println("result "+result);
+
                  //ici on a récupéré l'ensemble du texte
                      if(isCitations(result)){
                     	  //System.out.println("ici?");
                     	 //ici il faut ajouter les citations à la liste pas la remplacer a chaque fois
 
-                    	//System.out.println("on a récupéré "+result);
+
                     	citations=splitCitation(result,citations);
 
 
                      }
-                    // System.out.println("on sort du test de citation");
+
                      //si ce n'est pas une citation  les ajouter dans une liste conteant le reste du texte
                  }
 
@@ -468,6 +468,7 @@ catch (Exception e)
     		 System.out.println(citations.get(i));}
     	 System.out.println("-----------TEST APRES-------------");
     	 */
+    	// citations=organiseListe(citations);//a retirer quand on décommente
     	 testAjoutCitation(racine, citations);
 
 
@@ -492,6 +493,7 @@ catch (Exception e)
 
     		//on cherche le debut de citation actuel
     		ligneT=ligne.substring(pointavant,point);
+
     		Matcher m = p.matcher(ligneT);
     		if(ligneT.length()<=3&&m.matches())
     		{
@@ -503,8 +505,13 @@ catch (Exception e)
 				while(point!=-1&&!debutcitationOk)
 				{
 					point = ligne.indexOf(".",point+1);
+
+					if(point!=-1){
 					//on a besoin du dernier espace avant le point trouvé : ligne.substring(point).lastIndexOf(" ")
-					ligneT=ligne.substring(ligne.substring(point).lastIndexOf(" "),point);
+
+					if(ligne.substring(0,point).lastIndexOf(" ")!=-1){
+					ligneT=ligne.substring(ligne.substring(0,point).lastIndexOf(" "),point);
+
 					Matcher m2 = p.matcher(ligneT);
 					if(m2.matches())
 					{
@@ -515,23 +522,36 @@ catch (Exception e)
 
 
 				}
+					}
+				}
 
     		}
 
     	//System.out.println("debutCitation= "+debutCitation);
+
     	position=debutCitation+1;
     	while(nextCitations(ligne, position)!=-1)
     	{	//System.out.println("next citation renvoie "+nextCitations(ligne, position));
     		nextCitationStart=nextCitations(ligne, position);
+
+    		if(position-(ligneT.length()+1)>-1){
     		ajout=ligne.substring(position-(ligneT.length()+1),nextCitationStart).trim();
+
     		citations.add(ajout);
     		//System.out.println("dans le while on ajoute "+(ajout));
     		position=nextCitationStart+1;
 
     		//ligne=ligne.substring(position);
     		passeWhile=true;
+    		}
+    		else
+    		{
+    			position=nextCitationStart+1;
+    			passeWhile=true;
+    		}
 
     	}
+
     	//System.out.println("on sort du while "+position +" "+ligne.length());
     	//System.out.println("on trouve le string "+ligne.substring(position,ligne.length()));
     	if(!passeWhile){
