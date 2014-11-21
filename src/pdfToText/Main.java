@@ -1,5 +1,6 @@
 package pdfToText;
 
+import java.io.File;
 import java.util.ArrayList;
 
 public class Main {
@@ -9,9 +10,23 @@ public class Main {
 
 
 		ArrayList<String> texte=new ArrayList<String>();
-		texte.add("9012.pdf");
-		texte.add("94164.pdf");
-		texte.add("98321.pdf");
+
+		//main pour 3 cas
+		//texte.add("9012.pdf");
+		//texte.add("94164.pdf");
+		//texte.add("98321.pdf");
+
+		//main pour tout
+		String directoryName="lib";
+		File directory = new File(directoryName);
+		String[] allFileName = directory.list();
+		for (int i = 0; i < allFileName.length; i++) {
+			System.out.println(allFileName[i].substring(allFileName[i].lastIndexOf(".")));
+			if(!allFileName[i].substring(allFileName[i].lastIndexOf(".")).equals(".txt")){
+		texte.add(directoryName + "/" + allFileName[i]);
+			}
+		}
+
 		EnregistrementTexte en=new EnregistrementTexte(texte);
 
 	}
