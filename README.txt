@@ -1,3 +1,17 @@
+--------------------------------Séance du 21 novembre-------------------------------------------------
+-Modification pour s'assurer que les oeuvre sont ajouter une seule fois
+-Ajout de la fonction pour s'assurer que les citations sont ajouter une seule fois
+-Test effectué sur l'ensemble des citations , probléme trouvé : parfois c'est trés bien , parfois il n'y a rien
+-Recherche pour résoudre le probléme précedent
+
+
+
+
+--Entre le 17 octobre et le 20 novembre---------------------------------------------------------------
+Ajout de fonction permettant la récupération des citations
+Ajout de fonction permettant de filtrer ses résultat pour rendre les citations complete
+
+
 --------------------------------Séance du 17 Octobre-------------------------------------------------
 Ajout de fonction  testAjoutAuteur permettant d'ajouter un auteur si nécessaire
 Ajout de fonction  testAjoutTitre permettant d'ajouter un auteur si nécessaire
