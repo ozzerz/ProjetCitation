@@ -15,6 +15,7 @@ import java.io.PrintWriter;
 import java.lang.Character.Subset;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,6 +41,7 @@ public class EnregistrementTexte {
     private ArrayList<String> numeros;//contiendra toute les citations d'un texte
     private ArrayList<String> citationsPossible;//on stocke l'endroit ou il y a possiblement des citations
     private ArrayList<String> nonCitations;//on stocke le reste
+    private String titre;
 
 
     public EnregistrementTexte(ArrayList<String> texte)
@@ -81,7 +83,12 @@ public class EnregistrementTexte {
 
     }
 
-
+/**
+ * INUTILE POUR L'INSTANT
+ * utilisé pour compté le nombre de mot
+ * @param ligne
+ * @return
+ */
     public int compteMot(String ligne)
     {
 
@@ -99,7 +106,10 @@ public class EnregistrementTexte {
     	return retour+1;
 
     }
-
+/**INUTILE
+ * Compte le nombre de mot par paragraphe
+ * @param nomFichier
+ */
     public void calculLigne(String nomFichier)
     {
     	int nbMot=0;
@@ -191,7 +201,9 @@ public class EnregistrementTexte {
                     {
 
                     	 ligne=formaterNom(ligne);
+                    	 if(!ligne.isEmpty()){
                          auteur.add(ligne);//permet d'avoir le nom de l'auteur pour ajouter son oeuvre
+                    	 }
                          ligne =br.readLine();//on a nom+prenom d'un auteur
 
                     }
@@ -230,7 +242,6 @@ public class EnregistrementTexte {
         File file;
         Element racine = doc.getRootElement();
         //Element auteurElement = new Element("auteur");
-
         try{
             String ligne;
             String result="";
@@ -252,7 +263,8 @@ public class EnregistrementTexte {
                 }
 
                 //result=result.trim();
-                testAjoutTitre(racine,result);
+                titre=result;
+                testAjoutTitre(racine);
 
             }
 
@@ -271,21 +283,20 @@ public class EnregistrementTexte {
      * @param racine la racine du document
      * @param result le titre
      */
-    private void testAjoutTitre(Element racine,String titre)
+    private void testAjoutTitre(Element racine)
     {
     	 for(int j=0;j<auteur.size();j++){
     		 boolean exist=false;
              java.util.List<Element> lesoeuvre=racine.getChildren();
+             if(lesoeuvre.size()!=0){
              //il faut chercher dans cette liste verifier si l'oeuvre existe déja
               Iterator i = lesoeuvre.iterator();
               while(i.hasNext())
               {
-
              	 Element courant = (Element)i.next();
-                 if(courant.getAttributeValue("nom").equals(titre)||exist)
+                 if(courant.getAttributeValue("nom").trim().equals(titre.trim())||exist)
                  {
                     //alors l'oeuvre a déja etait ajouté
-
                     exist=true;
                  }
               }
@@ -311,9 +322,84 @@ public class EnregistrementTexte {
 
               	}
 
+             }
+             else
+             {
+            	 Element oeuvre = new Element("oeuvre");
+
+           		titre=titre.trim();
+
+                 oeuvre.setAttribute("nom",titre);
+                 //ici on ajoute comme fils les auteurs
+                 for(int k=0;k<auteur.size();k++)
+                 {
+                 	 Element auteurElement = new Element("auteur");
+                      auteurElement.setAttribute("nom",auteur.get(k));
+                      oeuvre.addContent(auteurElement);
+                 }
+                 //on l'ajoute au document XML
+                 racine.addContent(oeuvre);
+                 enregistreXML();//on sauvegarde les changement
+            	 //le doc est vide on peut donc ajouter
+             }
          }
 
     }
+
+    /**
+     * enregistre les citations si necessaire
+     * @param racine la racine du document
+     * @param result le titre
+     */
+    private void testAjoutCitation(Element racine,ArrayList<String> citations)
+    {
+    		boolean find=false;
+    		Element oeuvreEnCour = null;
+    		boolean citationIn=true;
+              		Element cits = new Element("citations");
+              		for(int c=0;c<citations.size();c++)
+              		{
+              			Element citation=new Element("citation");
+              			citation.addContent(citations.get(c));
+              			cits.addContent(citation);
+              		}
+              		List<Element> oeuvres = racine.getChildren();
+              		 Iterator i = oeuvres.iterator();
+                     while(i.hasNext())
+                     {
+
+                    	Element courant = (Element)i.next();
+                    	//System.out.println("courant non "+courant.getAttributeValue("nom"));
+                    	//System.out.println("titre "+titre.trim());
+                        if(courant.getAttributeValue("nom").equals(titre.trim())||!find)
+                        {
+                           //oeuvre trouvé
+                        	//System.out.println("on a trouvé l'oeuvre");
+                        	oeuvreEnCour=courant;
+                        	//System.out.println(courant.getChild("citations"));
+                        	if(courant.getChild("citations")==null)
+                        	{	//System.out.println("on le met a false");
+                        		citationIn=false;
+                        	}
+                        	find=true;
+
+
+                        }
+                     }
+                     if(!citationIn){
+                    	 //System.out.println("on ajoute cits");
+                     oeuvreEnCour.addContent(cits);
+                     }
+                    enregistreXML();//on sauvegarde les changement
+
+
+
+
+
+
+
+    }
+
 
 
     private BufferedReader getCitation(String nomFichier , BufferedReader br)
@@ -365,7 +451,7 @@ catch (Exception e)
 
 
     	 //partie pour voir ce que l'on obtiens
-
+/*
     	 System.out.println("-----------TEST AVANT-------------");
     	 for(int i=0;i<citations.size();i++)
     	 {
@@ -380,9 +466,9 @@ catch (Exception e)
     	 {
 
     		 System.out.println(citations.get(i));}
-
-
     	 System.out.println("-----------TEST APRES-------------");
+    	 */
+    	 testAjoutCitation(racine, citations);
 
 
     	return br;
@@ -439,7 +525,7 @@ catch (Exception e)
     		nextCitationStart=nextCitations(ligne, position);
     		ajout=ligne.substring(position-(ligneT.length()+1),nextCitationStart).trim();
     		citations.add(ajout);
-    		System.out.println("dans le while on ajoute "+(ajout));
+    		//System.out.println("dans le while on ajoute "+(ajout));
     		position=nextCitationStart+1;
 
     		//ligne=ligne.substring(position);
@@ -451,13 +537,13 @@ catch (Exception e)
     	if(!passeWhile){
     		ajout=ligne.substring(position-(ligneT.length()+1),ligne.length()).trim();
     	citations.add(ajout);
-    	System.out.println("a la fin on ajoute "+(ajout));
+    	//System.out.println("a la fin on ajoute "+(ajout));
     	}
     	else
     	{
     		ajout=ligne.substring(position,ligne.length()).trim();
     		citations.add(ajout);
-        	System.out.println("a la fin on ajoute "+(ajout));
+        	//System.out.println("a la fin on ajoute "+(ajout));
     	}
 
 
@@ -646,7 +732,7 @@ catch (Exception e)
     	boolean fauxPositif=true;
     	int taille = 0;
     	String recherche=ligne.substring(position);
-    	System.out.println("recherche ="+recherche);
+    	//System.out.println("recherche ="+recherche);
     	Pattern p = Pattern.compile("[0-9]*");
     	while(recherche.indexOf(".",i)!=-1&&verif){
     		//System.out.println("on plante sur test en fait");
@@ -659,29 +745,29 @@ catch (Exception e)
     		else{	pointAvant=point;
     				point = recherche.indexOf(".",i);
     				testE = recherche.substring(pointAvant, point).lastIndexOf(" ");
-    				System.out.println("point "+point);
-    				System.out.println("testE "+testE+ " la chaine= "+recherche.substring(pointAvant, point));
+    				//System.out.println("point "+point);
+    				//System.out.println("testE "+testE+ " la chaine= "+recherche.substring(pointAvant, point));
     				//System.out.println("pointavant "+pointAvant);
     				//on récupére le "numero" avant le prochain point
     				if(testE==-1){
     					numero = recherche.substring(pointAvant, point);
-    					System.out.println("IF  numero ="+numero);
+    					//System.out.println("IF  numero ="+numero);
     				}
     				else
     				{
     					numero = recherche.substring(testE+pointAvant, point);
     					numero = numero.trim();
     					taille=numero.length();
-    					System.out.println("ELSE  numero ="+numero);
+    					//System.out.println("ELSE  numero ="+numero);
     				}
     				//on verifie si on a le resultat
-    				System.out.println("numero= "+numero);
+    				//System.out.println("numero= "+numero);
     				Matcher m = p.matcher(numero);
     				fauxPositif=!numero.equals("p")&&!numero.equals("vol")&&!numero.equals("op")&&!numero.equals("cit")&&!numero.equals("u")&&!numero.equals("cf")&&!numero.equals("etc")&&!numero.equals("Cf");
-    				System.out.println("le match "+m.matches()+ " num = p "+!numero.equals("p")+" la taille "+numero.length());
+    				//System.out.println("le match "+m.matches()+ " num = p "+!numero.equals("p")+" la taille "+numero.length());
     				if(m.matches()&&fauxPositif&&numero.length()<=3)
     				{
-    					System.out.println("on renvoie le point "+point);
+    					//System.out.println("on renvoie le point "+point);
 
     					return point-taille+position;
 
@@ -689,15 +775,15 @@ catch (Exception e)
     				else
     				{
     					//on continue a chercher
-    					System.out.println("le else");
+    					//System.out.println("le else");
     					//pointAvant=point;
     					//dans le cas ou on  a trouve une page il faut ignorer ce qu'il y a avant le prochain point car il s'agira du numero de page
     					//System.out.println("on met precedent p a"+numero.equals("p"));
     					if(numero.equals("p")||numero.equals("chap"))
-    					{	System.out.println("on est rentré dans le egale p point ="+point);
+    					{	//System.out.println("on est rentré dans le egale p point ="+point);
     						i = point +1;
     						point =recherche.indexOf(".",i);
-    						System.out.println("point = "+point);
+    						//System.out.println("point = "+point);
     					}
     					pointAvant=point+1;
     					i = point +1;
