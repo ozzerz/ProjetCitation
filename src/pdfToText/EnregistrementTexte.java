@@ -435,7 +435,6 @@ public class EnregistrementTexte {
 
                     	citations=splitCitation(result,citations);
 
-
                      }
 
                      //si ce n'est pas une citation  les ajouter dans une liste conteant le reste du texte
@@ -551,11 +550,18 @@ catch (Exception e)
     		}
 
     	}
-
+    	;
     	//System.out.println("on sort du while "+position +" "+ligne.length());
     	//System.out.println("on trouve le string "+ligne.substring(position,ligne.length()));
     	if(!passeWhile){
+
+    		if(position-(ligneT.length()+1)>-1){
     		ajout=ligne.substring(position-(ligneT.length()+1),ligne.length()).trim();
+    		}
+    		else
+    		{
+    			ajout=ligne.substring(position,ligne.length()).trim();
+    		}
     	citations.add(ajout);
     	//System.out.println("a la fin on ajoute "+(ajout));
     	}
