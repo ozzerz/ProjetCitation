@@ -1,3 +1,11 @@
+
+--------------------------------Séance du 22 décembre-------------------------------------------------
+-Amélioration de l'algorythme pour améliorer le nombre de citation trouvé
+-Changement de l'architecture pour isoler la partie de recherche de citations
+-Création d'une fonction permettant de rendre plus lisible les citations trouvé
+
+
+
 --------------------------------Séance du 21 novembre-------------------------------------------------
 -Modification pour s'assurer que les oeuvre sont ajouter une seule fois
 -Ajout de la fonction pour s'assurer que les citations sont ajouter une seule fois

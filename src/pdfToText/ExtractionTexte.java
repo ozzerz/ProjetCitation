@@ -17,7 +17,6 @@ import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.util.PDFTextStripper;
 
-import db.Auteur;
 
 public class ExtractionTexte {
 
