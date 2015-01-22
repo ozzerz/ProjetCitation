@@ -21,7 +21,9 @@ import org.apache.pdfbox.util.PDFTextStripper;
 public class ExtractionTexte {
 
 
-
+	/**
+	 * Le fichier que l'on va transformer en .txt
+	 */
 	File file;
 
 
@@ -100,7 +102,7 @@ public class ExtractionTexte {
 
 
 		/**
-		 * (Surement temporaire) Permet de crée un fichier contenant le texte placé en parametre
+		 *  Permet de crée un fichier contenant le texte placé en parametre
 		 *  @param texte le texte que l'on ecrira dans le fichier
 		 */
 		void creationFichier(String texte,String nomFichier)
