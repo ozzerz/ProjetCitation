@@ -24,31 +24,43 @@ import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
 /**
- * Permet d'enregistrer les .txt contenants les information qui nous intéresse
+ * Permet d'enregistrer les .txt contenants les pdfs
  * @author Ozzerz
  *
  */
 public class EnregistrementTexte {
-
-    private ArrayList<String> lesTextes;//contiendra la liste des titres de texte dont on souhaite obtenir le contenu
-    private ExtractionTexte et;//la transformation en texte
-    private ArrayList<String> auteur;//contiendra le/les auteur du texte actuel (réinitialiser avant chaque nouveau fichier)
-    private Document doc;//contiendra le document de la BDD
-    private int numeroCitation;//permettra de connaitre le numero de la prochaine citation que l'on cherche
-    private ArrayList<String> citations;//contiendra toute les citations d'un texte
-    private ArrayList<String> numeros;//contiendra toute les citations d'un texte
-    private ArrayList<String> citationsPossible;//on stocke l'endroit ou il y a possiblement des citations
-    private ArrayList<String> nonCitations;//on stocke le reste
+	/**
+	 * la liste des titres de texte dont on souhaite obtenir le contenu
+	 */
+    private ArrayList<String> lesTextes;
+    /**
+     * la transformation en texte
+     */
+    private ExtractionTexte et;
+    /**
+     * contiendra le/les auteur du texte actuel (réinitialiser avant chaque nouveau fichier)
+     */
+    private ArrayList<String> auteur;
+    /**
+     * le document de la BDD
+     */
+    private Document doc;
+    /**
+     * le titre du PDF
+     */
     private String titre;
 
-
+    /**
+     * contructeur
+     * @param texte la liste des PDF
+     */
     public EnregistrementTexte(ArrayList<String> texte)
     {
         lesTextes=texte;
         String nomFichier;
         File monFichier=new File("bdd.xml");
 
-        //creation de fichier
+        //creation de fichier de la BDD si il n'existe pas
         try
         {
         if(!monFichier.exists())
@@ -62,96 +74,29 @@ public class EnregistrementTexte {
         //on va transformer chaque pdf en fichierTexte pour ensuite les manipuler
         for(int i=0;i<lesTextes.size();i++)
         {
-            //auteur=new ArrayList<String>();
+
             nomFichier=(lesTextes.get(i).substring(0, lesTextes.get(i).length()-3))+"txt";
             et=new ExtractionTexte(lesTextes.get(i));
             et.creationFichier(et.pdftoText(),nomFichier);
             getAllInfo(nomFichier);
-            //calculLigne(nomFichier);
+
 
         }
         }
         catch (Exception e)
         {
-        System.out.println("Erreur non naturel");
+        System.out.println("Erreur non naturel");// ne devrais jamais arrivé
         }
 
 
 
     }
 
-/**
- * INUTILE POUR L'INSTANT
- * utilisé pour compté le nombre de mot
- * @param ligne
- * @return
- */
-    public int compteMot(String ligne)
-    {
 
-    	int retour =0;
-    	ligne=ligne.trim();
-    	int depuis =0;
-    	while (ligne.indexOf(' ',depuis)!=-1)
-    	{
-    		depuis =ligne.indexOf(' ',depuis)+1;
-    		retour++;
-
-    	}
-
-
-    	return retour+1;
-
-    }
-/**INUTILE
- * Compte le nombre de mot par paragraphe
- * @param nomFichier
- */
-    public void calculLigne(String nomFichier)
-    {
-    	int nbMot=0;
-    	int retourTotal=0;
-
-    	try{
-    		FileWriter fw = new FileWriter (nomFichier+"ligne");
-			BufferedWriter bw = new BufferedWriter (fw);
-			PrintWriter fichierSortie = new PrintWriter (bw);
-			InputStream ips=new FileInputStream(nomFichier);
-			InputStreamReader ipsr=new InputStreamReader(ips);
-			BufferedReader br=new BufferedReader(ipsr);
-			String ligne;
-			while ((ligne=br.readLine())!=null){
-				retourTotal=0;
-				if(ligne.equals("Debut de paragraphe"))
-				{
-					ligne=br.readLine();
-
-					while (!ligne.contains("Fin de paragraphe"))
-					{
-						nbMot=compteMot(ligne);
-						retourTotal=retourTotal+nbMot;
-						fw.write (ligne +" "+nbMot+"\n");
-						ligne=br.readLine();
-
-					}
-
-					fw.write (retourTotal+"\n");
-
-				}
-
-
-			}
-			br.close();
-		}
-		catch (Exception e){
-			System.out.println(e.toString());
-		}
-
-    }
 
 
     /**
-     * récupérra toute les information nécessaire
+     * récupére toute les information nécessaire
      * @param nomFichier le nom du fichier
      */
     private void getAllInfo(String nomFichier)
@@ -343,78 +288,6 @@ public class EnregistrementTexte {
          }
 
     }
-
-
-/* pour l'instant inutile
-    private ArrayList<String> getCitations(String ligne)
-    {
-    	ArrayList<String> citations= new ArrayList<String>();
-    	int pointEnCours=0;//l'index du point en cours
-    	int numeroEnCours=0;//le numéro en cours
-    	int departDernier=0;//permettra de récupéré la derniere citation
-    	String stockNombre="nop";//on s'en servira pour stocker le nombre avant le point
-
-
-    		//pour la premiere citation
-    		int premierP=ligne.indexOf(".");
-    		String numero=ligne.substring(0,premierP);
-    		int numProchaineCitation =(Integer.parseInt(numero))+1;
-    		int stop= nextCitations(ligne,0,String.valueOf(numProchaineCitation));
-    		if(stop!=-1)
-    		{
-    		String citation=ligne.substring(0,stop);//<==Bloque a cette ligne
-    		citations.add(citation);
-    		//pour toutes les autres avant la derniere;
-
-    		int depart=stop;
-
-    		while(depart!=-1)
-    		{	//System.out.println("depart="+depart);
-    			pointEnCours=ligne.indexOf(".",depart);
-    			numero=ligne.substring(pointEnCours-numero.length(),pointEnCours);
-    			numProchaineCitation =(Integer.parseInt(numero)+1);
-    			//System.out.println("numProchainecita= "+numProchaineCitation);
-    			//System.out.println("ointEnCours-numero.length(): "+(pointEnCours-numero.length())+" String.valueOf(numProchaineCitation) "+String.valueOf(numProchaineCitation));
-    			//System.out.println("le prochain stop va valloir "+nextCitations(ligne,pointEnCours-numero.length(),String.valueOf(numProchaineCitation))+" on recherche"+numProchaineCitation);
-
-
-    			stop= nextCitations(ligne,pointEnCours-numero.length(),String.valueOf(numProchaineCitation));
-    			if(stop!=-1){
-    			citation=ligne.substring(pointEnCours-numero.length(),stop);
-    			//System.out.println("on a ajouté "+citation);
-        		citations.add(citation);
-        		depart=stop;
-        		//System.out.println("prochaine citation= "+String.valueOf(numProchaineCitation));
-        		//System.out.println("depart= "+depart);
-
-        		//System.out.println("on a récup "+citations);
-    			}
-    			else
-    			{
-    				//dans ce cas stop vaut -1 il faut donc passé a l'étape suivante
-    				//System.out.println("dafuq");
-    				departDernier=depart;
-    				depart=stop;
-    			}
-
-    		}
-    		//pour la derniere
-    		//System.out.println("on arrive la");
-    		pointEnCours=ligne.indexOf(".",departDernier);
-    		citation=ligne.substring(pointEnCours-numero.length(),ligne.length());
-    		citations.add(citation);}
-    		else
-    		{
-    			//il n'y a qu'une citation
-    			String citation=ligne.substring(0,ligne.length());//<==Bloque a cette ligne
-        		citations.add(citation);
-    		}
-
-
-    		//System.out.println("on renvoie une liste de taille "+citations.size());
-    	return citations;
-    }
-*/
 
 
     /**
