@@ -1,3 +1,10 @@
+------------------------------Séance du 23 Janvier--------------------------------------------------
+-Evolution de l'architecture pour faciliter la reprise du projet (ajout de fonction parfois vide avec explication de ce qui est attendu)
+-Ajout de test Unitaire
+-ajout de la distance d'édition
+-Ajout d'une fonction permettant de récupéré une personne cité dans une citation
+
+
 
 --------------------------------Séance du 22 décembre-------------------------------------------------
 -Amélioration de l'algorythme pour améliorer le nombre de citation trouvé

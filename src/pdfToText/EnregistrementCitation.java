@@ -164,7 +164,7 @@ public class EnregistrementCitation {
 	 *            la liste de citation
 	 * @return la liste de citations modifier
 	 */
-	private ArrayList<String> splitCitation(String ligne,
+	public ArrayList<String> splitCitation(String ligne,
 			ArrayList<String> citations) {
 		Pattern p = Pattern.compile("^[a-z0-9]*");
 		Pattern p2 = Pattern.compile("[0-9]+");// contient au moins un nombre
@@ -267,7 +267,7 @@ public class EnregistrementCitation {
 	 * @return true si c'est une citation , false sinon
 	 * @throws InterruptedException
 	 */
-	private boolean isCitations(String ligne) throws InterruptedException {
+	public boolean isCitations(String ligne) throws InterruptedException {
 		// chaque citation commence par la forme XX.
 		int point = ligne.indexOf(".");
 		int pointavant = 0;
@@ -369,7 +369,7 @@ public class EnregistrementCitation {
 	 * @return -1 si il n'y a plus de citation sinon renvoie la position de la
 	 *         prochaine citation
 	 */
-	private int nextCitations(String ligne, int position) {
+	public int nextCitations(String ligne, int position) {
 
 		boolean verif = true;
 		int i = 0;
