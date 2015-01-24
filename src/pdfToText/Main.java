@@ -3,6 +3,7 @@ package pdfToText;
 import java.io.File;
 import java.util.ArrayList;
 
+import bddHelper.Distance;
 import bddHelper.FormatageCitation;
 
 public class Main {
@@ -31,9 +32,11 @@ public class Main {
 		}
 */
 		EnregistrementTexte en=new EnregistrementTexte(texte);
-		FormatageCitation fc=new FormatageCitation("bdd.xml");
+		//FormatageCitation fc=new FormatageCitation("bdd.xml");
 		//fc.getAuteurCitation("1. Je suis un aigle.","unique_name_raw_persee.csv");
-		fc.mettreEnForme("Basil", "B.");
+		//fc.mettreEnForme("Basil", "B.");
+		Distance di=new Distance();
+		System.out.println(di.LevenshteinDistance("Dxlan", "Dolan"));
 	}
 
 }

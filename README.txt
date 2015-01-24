@@ -1,3 +1,7 @@
+------------------------------Séance du 24 Janvier--------------------------------------------------
+Ajout de la gestion d'erreur (+ test)
+ajout deuxieme algorithme pour trouver les auteurs de maniére plus précise mais plus lente (+test)
+
 ------------------------------Séance du 23 Janvier--------------------------------------------------
 -Evolution de l'architecture pour faciliter la reprise du projet (ajout de fonction parfois vide avec explication de ce qui est attendu)
 -Ajout de test Unitaire

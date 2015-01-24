@@ -30,7 +30,7 @@ public class FormatageCitation {
 		try {
 			if (monFichier.exists()) {
 				SAXBuilder sxb = new SAXBuilder();
-				doc = sxb.build(new File("bdd.xml"));
+				doc = sxb.build(monFichier);
 			}
 		} catch (Exception e) {
 
@@ -58,7 +58,7 @@ public class FormatageCitation {
 
 	/**
 	 * Cette methode a pour but de trouver l'auteur d'une citation si il existe
-	 * pour cette methode il faudra utiliser La distance d'édition
+	 * Cependant celle ci s'arréte si l'on en trouve un avec un certain % d'erreur
 	 *
 	 * @see Distance
 	 * @param citation
@@ -67,7 +67,7 @@ public class FormatageCitation {
 	 *            le nom du fichier contenant l'ensembles des noms d'auteurs
 	 * @return l'auteur si il existe , null sinon
 	 */
-	public String getAuteurCitation(String citation, String fichierNom) {
+	public String getAuteurCitationRapide(String citation, String fichierNom) {
 		String auteur = null;
 		String nom;// ce que l'on pense pouvoir etre le nom de l'auteur
 		String prenom;// ce que l'on pense pouvoir etre le prenom de l'auteur
@@ -180,6 +180,164 @@ public class FormatageCitation {
 
 	}
 
+
+
+	/**
+	 * Cette version prned plus de temps que la précédente mais ressort la réponse la plus précise possible
+	 * @param citation
+	 * @param fichierNom
+	 * @return
+	 */
+	public String getAuteurCitationLente(String citation, String fichierNom) {
+		int erreurActuel=300;//on stockera les distance d'édition actuel pour améliorer le résultat
+		int erreurTempo;//pour comparé avec l'erreur actuel
+		String auteur = null;
+		String nom;// ce que l'on pense pouvoir etre le nom de l'auteur
+		String prenom;// ce que l'on pense pouvoir etre le prenom de l'auteur
+		String ligne;// la ligne que l'on va lire
+		String nomAuteur;// le nom de l'auteur dans le fichier
+		String prenomAuteur;// le prenom de l'auteur dans le fichier
+		String[] tempo;// serivra a repartir le nom et le prenom de l'auteur
+		Distance di = new Distance();// permettra de lancer le calcul d'édition
+		File lesAuteurs = new File(fichierNom);// le fichier avec tout les
+												// auteurs
+		InputStream ips;
+		// une citation termine tout par un . on va le supprimer
+		citation = citation.substring(0, citation.length() - 1);
+		boolean trouve = false;
+		try {
+			ips = new FileInputStream(lesAuteurs);
+			InputStreamReader ipsr = new InputStreamReader(ips);
+			BufferedReader br = new BufferedReader(ipsr);
+			if (citation.indexOf(".") != -1) {
+				citation = citation.substring(citation.indexOf(".") + 1).trim();
+				String[] lesMots = citation.split(" ");
+				// pour chaque mot
+				for (int i = 0; i < lesMots.length - 1; i++) {
+					nom = lesMots[i];
+					prenom = lesMots[i + 1];
+					while ((ligne = br.readLine()) != null && !trouve) {
+						tempo = ligne.split(" ");
+						// on recupére les nom et on remet en forme
+						nomAuteur = tempo[0];
+						prenomAuteur = tempo[1];
+						nom = mettreEnForme(nom, nomAuteur);
+
+						prenom = mettreEnForme(prenom, prenomAuteur);
+						// il est possible que le . soit dans la citation est
+						// pas dans la DB
+						// dans ce cas il faut modifier
+
+						nomAuteur = mettreEnForme(nomAuteur, nom);
+						prenomAuteur = mettreEnForme(prenomAuteur, prenom);
+
+						// si le prenom ou le nom est de taille 2 et que l'on a
+						// pas le même alors ce n'est pas l'auteur
+						if (prenom.length() <= 2 || nom.length() <= 2) {
+							if (prenom.length() <= 2) {
+								if (prenom.equals(prenomAuteur)) {
+									if (di.LevenshteinDistance(nom, nomAuteur) <= fonctionTaille(nom)) { // on
+																										// a
+																											// l'auteur
+										erreurTempo=di.LevenshteinDistance(nom, nomAuteur)+di.LevenshteinDistance(prenom, prenomAuteur);
+										if(erreurTempo<erreurActuel)
+										{
+											auteur = nomAuteur + " " + prenomAuteur;
+											erreurActuel=erreurTempo;
+											if(erreurActuel==0)
+											{
+												trouve = true;//aucune erreur donc le bon auteur
+											}
+										}
+
+
+
+
+									}
+
+								}
+								// on sais que ce n'est pas l'auteur
+
+							} else {
+								if (nom.equals(nomAuteur)) {
+									if (di.LevenshteinDistance(prenom,
+											prenomAuteur) <= fonctionTaille(prenom)) { // on
+																						// a
+																						// l'auteur
+
+										erreurTempo=di.LevenshteinDistance(nom, nomAuteur)+di.LevenshteinDistance(prenom, prenomAuteur);
+										if(erreurTempo<erreurActuel)
+										{
+											auteur = nomAuteur + " " + prenomAuteur;
+											erreurActuel=erreurTempo;
+											if(erreurActuel==0)
+											{
+												trouve = true;//aucune erreur donc le bon auteur
+											}
+										}
+									}
+
+								}
+								// on sais que ce n'est pas l'auteur
+
+								// c'est le nom qui est de taille 2
+							}
+						} else
+						// taille supérieur a 2
+						{ // si le nom et le prenom remplisse les conditions on
+							// a le nom
+
+							if (di.LevenshteinDistance(prenom, prenomAuteur) <= fonctionTaille(prenom)
+									&& di.LevenshteinDistance(nom, nomAuteur) <= fonctionTaille(nom)) {
+								erreurTempo=di.LevenshteinDistance(nom, nomAuteur)+di.LevenshteinDistance(prenom, prenomAuteur);
+								if(erreurTempo<erreurActuel)
+								{
+									auteur = nomAuteur + " " + prenomAuteur;
+									erreurActuel=erreurTempo;
+									if(erreurActuel==0)
+									{
+										trouve = true;//aucune erreur donc le bon auteur
+									}
+								}
+							}
+							// on inverse le nom et le prenom au cas ou ca ne
+							// serait pas dans le même sens
+							String t = nomAuteur;
+							nomAuteur = prenomAuteur;
+							prenomAuteur = t;
+							if (di.LevenshteinDistance(prenom, prenomAuteur) <= fonctionTaille(prenom)
+									&& di.LevenshteinDistance(nom, nomAuteur) <= fonctionTaille(nom)) {
+								erreurTempo=di.LevenshteinDistance(nom, nomAuteur)+di.LevenshteinDistance(prenom, prenomAuteur);
+								if(erreurTempo<erreurActuel)
+								{
+									auteur = prenomAuteur + " " + nomAuteur;
+									erreurActuel=erreurTempo;
+									if(erreurActuel==0)
+									{
+										trouve = true;//aucune erreur donc le bon auteur
+									}
+								}
+							}
+
+						}
+
+					}
+					br.close();
+					ips = new FileInputStream(lesAuteurs);
+					ipsr = new InputStreamReader(ips);
+					br = new BufferedReader(ipsr);
+
+				}
+
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return auteur;
+
+	}
+
 	/**
 	 * Permet de changer nom et prenom pour qu'il soit de la même forme que ceux
 	 * du fichier exemple: aChanger = Albert , forme = A. aChanger deviendra A.
@@ -190,6 +348,7 @@ public class FormatageCitation {
 	 */
 	public String mettreEnForme(String aChanger, String forme) {
 		String retour = aChanger;
+
 		if (forme.contains(".")) {
 			int pos = forme.indexOf(".");
 			retour = aChanger.substring(0, pos) + ".".trim();
