@@ -15,7 +15,7 @@ import org.junit.Test;
 
 import bddHelper.CalculUtilisationMot;
 /**
- * Contiens les test pour la classe CalculUtilisationMot
+ * Contient les tests pour la classe CalculUtilisationMot
  * @author Ozzerz
  *
  */
@@ -49,7 +49,7 @@ public class CalculUtilisationMotTestCase extends TestCase {
 			calc.nbUtilisation.add(2);
 			calc.mots.add("mots2FoisAussi");
 			calc.nbUtilisation.add(2);
-			//on va préparé les retour attendu
+			//on va préparer les retours attendus
 			ArrayList<String>retour3MotAttendu=new ArrayList<String>();
 			retour3MotAttendu.add("mots3Fois");
 			retour3MotAttendu.add("mots3FoisAussi");
@@ -84,7 +84,7 @@ public class CalculUtilisationMotTestCase extends TestCase {
 	}
 	@Test
 	public void test_addMot() {
-		//preparation des element
+		//preparation des elements
 		ArrayList<String>retourMotAttendu=new ArrayList<String>();
 		ArrayList<Integer> retourNbMotAttendu=new ArrayList<Integer>();
 		calc.addMot("mot");
@@ -109,7 +109,7 @@ public class CalculUtilisationMotTestCase extends TestCase {
 	public void test_compteMotUneCitation() {
 			String citation ="1. Je suis un aigle aigle aigle.";
 			calc.compteMotUneCitation(citation);
-			//preparation des résultat attendu
+			//preparation des résultats attendus
 			ArrayList<String>retourMotAttendu=new ArrayList<String>();
 			ArrayList<Integer> retourNbMotAttendu=new ArrayList<Integer>();
 			retourMotAttendu.add("Je");

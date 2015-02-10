@@ -1,8 +1,9 @@
-package pdfToText;
+package main;
 
 import java.io.File;
 import java.util.ArrayList;
 
+import pdfHelper.ExtractionInformation;
 import bddHelper.Distance;
 import bddHelper.FormatageCitation;
 
@@ -19,7 +20,7 @@ public class Main {
 		//texte.add("94164.pdf");
 		//texte.add("98321.pdf");
 
-		//main pour tout
+		//main pour tout (en supposant le repertoire d'article dans le projet)
 		/*
 		String directoryName="lib";
 		File directory = new File(directoryName);
@@ -31,12 +32,7 @@ public class Main {
 			}
 		}
 */
-		EnregistrementTexte en=new EnregistrementTexte(texte);
-		//FormatageCitation fc=new FormatageCitation("bdd.xml");
-		//fc.getAuteurCitation("1. Je suis un aigle.","unique_name_raw_persee.csv");
-		//fc.mettreEnForme("Basil", "B.");
-		Distance di=new Distance();
-		System.out.println(di.LevenshteinDistance("Dxlan", "Dolan"));
+
 	}
 
 }

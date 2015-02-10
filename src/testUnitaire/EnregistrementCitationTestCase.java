@@ -12,7 +12,7 @@ import org.jdom2.Document;
 import org.jdom2.input.SAXBuilder;
 import org.junit.Test;
 
-import pdfToText.EnregistrementCitation;
+import pdfHelper.EnregistrementCitation;
 import bddHelper.CalculUtilisationMot;
 
 public class EnregistrementCitationTestCase extends TestCase {

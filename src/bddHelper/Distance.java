@@ -1,9 +1,9 @@
 package bddHelper;
 /**
- * Cette classe a pour but d'etre utiliser pour modifier la citation a l'aide du document contenant tout les noms pour améliorer la citation
- *On pourra également l"utiliser pour récupéré le nom d'un auteur cité dans une citation et de ce fait changer la base de donnée pour changer
+ * Cette classe a pour but d'être utiliser pour modifier la citation à l'aide du document contenant tout les noms pour améliorer la citation
+ *On pourra également l"utiliser pour récupérer le nom d'un auteur cité dans une citation et de ce fait changer la base de donnée pour changer
  *
- * <citation>2. Pour un exposé plus complet de  ce point de vue, cf. Leonard  Krieger, "The Horizons of History"  American Historical Review,  vol. 63, 1957-1958, p. 62-74.</citation>
+ * <citation>2. Pour un exposé plus complet de ce point de vue, cf. Leonard  Krieger, "The Horizons of History"  American Historical Review,  vol. 63, 1957-1958, p. 62-74.</citation>
  * en
  * <citation>
  * <lacitation>2. Pour un exposé plus complet de  ce point de vue, cf. Leonard  Krieger, "The Horizons of History"  American Historical Review,  vol. 63, 1957-1958, p. 62-74.

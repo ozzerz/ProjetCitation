@@ -4,4 +4,4 @@
 /**
  * @author Ozzerz
  */
-package pdfToText;
+package pdfHelper;

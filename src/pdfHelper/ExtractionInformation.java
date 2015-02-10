@@ -1,4 +1,4 @@
-package pdfToText;
+package pdfHelper;
 
 
 import java.io.BufferedReader;
@@ -28,17 +28,17 @@ import org.jdom2.output.XMLOutputter;
  * @author Ozzerz
  *
  */
-public class EnregistrementTexte {
+public class ExtractionInformation {
 	/**
-	 * la liste des titres de texte dont on souhaite obtenir le contenu
+	 * la liste des titres de textes dont on souhaite obtenir le contenu
 	 */
     private ArrayList<String> lesTextes;
     /**
      * la transformation en texte
      */
-    private ExtractionTexte et;
+    private TransformationPDFtoText et;
     /**
-     * contiendra le/les auteur du texte actuel (réinitialiser avant chaque nouveau fichier)
+     * contiendra le/les auteur(s) du texte actuel (réinitialiser avant chaque nouveau fichier)
      */
     private ArrayList<String> auteur;
     /**
@@ -54,13 +54,13 @@ public class EnregistrementTexte {
      * contructeur
      * @param texte la liste des PDF
      */
-    public EnregistrementTexte(ArrayList<String> texte)
+    public ExtractionInformation(ArrayList<String> texte)
     {
         lesTextes=texte;
         String nomFichier;
         File monFichier=new File("bdd.xml");
 
-        //creation de fichier de la BDD si il n'existe pas
+        //création du fichier de la BDD s'il n'existe pas
         try
         {
         if(!monFichier.exists())
@@ -76,7 +76,7 @@ public class EnregistrementTexte {
         {
 
             nomFichier=(lesTextes.get(i).substring(0, lesTextes.get(i).length()-3))+"txt";
-            et=new ExtractionTexte(lesTextes.get(i));
+            et=new TransformationPDFtoText(lesTextes.get(i));
             et.creationFichier(et.pdftoText(),nomFichier);
             getAllInfo(nomFichier);
 
@@ -85,7 +85,7 @@ public class EnregistrementTexte {
         }
         catch (Exception e)
         {
-        System.out.println("Erreur non naturel");// ne devrais jamais arrivé
+        System.out.println("Erreur non naturel");// ne devrait jamais arriver
         }
 
 
@@ -96,7 +96,7 @@ public class EnregistrementTexte {
 
 
     /**
-     * récupére toute les information nécessaire
+     * récupére toute les informations nécessaires
      * @param nomFichier le nom du fichier
      */
     private void getAllInfo(String nomFichier)
@@ -121,7 +121,7 @@ public class EnregistrementTexte {
 
 
 /**
- * recupere les auteurs
+ * Récupere les auteurs
  * @param nomFichier
  * @return
  */
@@ -135,7 +135,7 @@ public class EnregistrementTexte {
 
         try{
             String ligne;
-            //tant qu'on a pas trouvé les auteurs
+            //tant qu'on a pas trouver les auteurs
             while ((ligne=br.readLine())!=null&&fin){
                 if(ligne.equals("Debut de paragraphe"))
                 {
@@ -173,7 +173,7 @@ public class EnregistrementTexte {
 
 
     /**
-     * Permet de récupéré de titre du PDF , s'utilise toujours aprés GetAuteur
+     * Permet de récupérer de titre du PDF , s'utilise toujours aprés GetAuteur
      * @param nomFichier , le nom du fichier
      * @param br , le bufferedReader
      * @return le bufferReader situé aprés le titre
@@ -181,14 +181,14 @@ public class EnregistrementTexte {
     private BufferedReader getTitre(String nomFichier ,BufferedReader br)
     {
         boolean fin=true;
-        boolean auteurT=true;//permet de savoir quand on a trouvé l'element auteur lors de notre recherche pour ajouter son oeuvre
+        boolean auteurT=true;//permet de savoir quand on a trouvé l'élèment auteur lors de notre recherche pour ajouter son oeuvre
         File file;
         Element racine = doc.getRootElement();
-        //Element auteurElement = new Element("auteur");
+
         try{
             String ligne;
             String result="";
-            //tant qu'on a pas trouvé les auteurs
+            //tant qu'on n'a pas trouvé les auteurs
             while ((ligne=br.readLine())!=null&&fin){
                 if(ligne.equals("Debut de paragraphe"))
                 {
@@ -200,12 +200,12 @@ public class EnregistrementTexte {
                         ligne =br.readLine();//on a le titre
 
                     }
-                    fin=false;//on a récupéré entiérement le titre
-                   // result=result;
+                    fin=false;//on a récupéré entièrement le titre
+
 
                 }
 
-                //result=result.trim();
+
                 titre=result;
                 testAjoutTitre(racine);
 
@@ -222,7 +222,7 @@ public class EnregistrementTexte {
     }
 
     /**
-     * enregistre le titre si necessaire
+     * enregistre le titre si nécessaire
      * @param racine la racine du document
      * @param result le titre
      */
@@ -259,7 +259,7 @@ public class EnregistrementTexte {
                     }
                     //on l'ajoute au document XML
                     racine.addContent(oeuvre);
-                    enregistreXML();//on sauvegarde les changement
+                    enregistreXML();//on sauvegarde les changements
 
 
 
@@ -282,8 +282,8 @@ public class EnregistrementTexte {
                  }
                  //on l'ajoute au document XML
                  racine.addContent(oeuvre);
-                 enregistreXML();//on sauvegarde les changement
-            	 //le doc est vide on peut donc ajouter
+                 enregistreXML();//on sauvegarde les changements
+
              }
          }
 
@@ -316,7 +316,7 @@ public class EnregistrementTexte {
         ligne=ligne.replaceAll("MADEMOISELLE","");
         ligne=ligne.replaceAll("Mlle","");
         ligne=ligne.replaceAll("MLLE","");
-        ligne=ligne.trim();//on supprime tout les espaces de debut et de fin
+        ligne=ligne.trim();//on supprime tout les espaces du début et de la fin
         return ligne;
     }
 
@@ -356,7 +356,7 @@ public class EnregistrementTexte {
 
 
     /**
-     * Permet de modifier la liste de citation pour supprimer les doublons , mettre les numero de citations au bon endroit si necessaire
+     * Permet de modifier la liste de citation pour supprimer les doublons , mettre les numéros de citations au bon endroit si nécessaire
      * @param citations la liste des citations
      * @return la liste des citations réorganiser
      */
@@ -369,7 +369,7 @@ public class EnregistrementTexte {
     	{
     		if(citations.get(i).length()<=3)
     		{
-    			//on verifie si l'element d'apres de la liste a son numero
+    			//on vérifie si l'élèment d'après de la liste a son numéro
     			if(citations.get(i+1).indexOf(".")!=-1){
     			numero=citations.get(i+1).substring(0,citations.get(i+1).indexOf("."));
     			Matcher m=p.matcher(numero);
@@ -389,13 +389,13 @@ public class EnregistrementTexte {
 
     	}
 
-    	//dans ce deuxieme tour on va réunir ce qu'il reste , (des erreur du au "p.")
+    	//dans ce deuxième tour on va réunir ce qu'il reste , (des erreur du au "p.")
     	for(int i=0;i<citations.size();i++)
     	{
-    		//si la citations commence par un.
+    		//si la citation commence par un.
     		if(citations.get(i).startsWith("."))
     		{
-    			//alors on l'attache a celle d'avant
+    			//alors on l'attache à celle d'avant
     			citations.set(i-1, citations.get(i-1)+citations.get(i).substring(1));
     			citations.remove(i);
     			i--;
@@ -404,7 +404,7 @@ public class EnregistrementTexte {
     		//si elle commence par un p
     		if(citations.get(i).startsWith("p"))
     		{
-    			//alors on l'attache a celle d'avant
+    			//alors on l'attache à celle d'avant
     			citations.set(i-1, citations.get(i-1)+citations.get(i));
     			citations.remove(i);
     			i--;
@@ -415,7 +415,7 @@ public class EnregistrementTexte {
     			citations.remove(i);
     		}
 
-    			//si il n'y a pas de point ou si ce qu'il y a avant le point n'est pas matché
+    			//s'il n'y a pas de point ou si ce qu'il y a avant le point n'est pas matché
     			int point =citations.get(i).indexOf(".");
     		if(point!=-1){
     			numero=citations.get(i).substring(0,point);

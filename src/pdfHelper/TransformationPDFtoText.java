@@ -1,4 +1,4 @@
-package pdfToText;
+package pdfHelper;
 
 /**
  * Cette classe permet l'extraction des données d'un fichier PDF
@@ -18,7 +18,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.util.PDFTextStripper;
 
 
-public class ExtractionTexte {
+public class TransformationPDFtoText {
 
 
 	/**
@@ -27,7 +27,7 @@ public class ExtractionTexte {
 	File file;
 
 
-		public ExtractionTexte(String fileName)
+		public TransformationPDFtoText(String fileName)
 		{
 			file = new File(fileName);
 		}

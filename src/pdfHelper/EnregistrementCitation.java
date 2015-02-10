@@ -1,4 +1,4 @@
-package pdfToText;
+package pdfHelper;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -15,14 +15,14 @@ import org.jdom2.Element;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 /**
- * Enregistre les citation dans la base de données
+ * Enregistre les citations dans la base de données
  * @author Ozzerz
  *
  */
 public class EnregistrementCitation {
 
 	/**
-	 *  le titre de de l'oeuvre en cour
+	 *  le titre de l'oeuvre en cours
 	 */
 	String titre;
 	/**
@@ -35,7 +35,7 @@ public class EnregistrementCitation {
 	BufferedReader br;
 
 	/**
-	 * Contiendra les partie du texte ou il n'y a pas de citation
+	 * Contiendra les parties du texte où il n'y a pas de citation
 	 */
 	ArrayList<String> resteDuTexte;
 
@@ -54,7 +54,7 @@ public class EnregistrementCitation {
 	}
 
 	/**
-	 * Enregistre les citations si necessaire
+	 * Enregistre les citations si celles ci ne sont pas déja dans la base de données
 	 *
 	 * @param racine
 	 *            la racine du document
@@ -65,8 +65,8 @@ public class EnregistrementCitation {
 		boolean find = false;
 		Element oeuvreEnCour = null;
 		boolean citationIn = true;//sera utilisé pour savoir si les citations sont déja dans la BDD
-		Element cits = new Element("citations");//on crée l'element citations pour la BDD
-		//tant que toute les citations ne sont pas dans la BDD on crée leur element
+		Element cits = new Element("citations");//on crée l'élement citations pour la BDD
+		//tant que toutes les citations ne sont pas dans la BDD on crée leur élement
 		for (int c = 0; c < citations.size(); c++) {
 			Element citation = new Element("citation");
 			citation.addContent(citations.get(c));
@@ -74,7 +74,7 @@ public class EnregistrementCitation {
 		}
 		List<Element> oeuvres = racine.getChildren();
 		Iterator i = oeuvres.iterator();
-		// ici on determine si les citations sont déja dans la base de données
+		// ici on détermine si les citations sont déja dans la base de données
 		while (i.hasNext()) {
 
 			Element courant = (Element) i.next();
@@ -89,12 +89,12 @@ public class EnregistrementCitation {
 
 			}
 		}
-		//si elle ne sont pas dedans alors on les enregistres
+		//si elle ne sont pas dedans alors on les enregistre
 		if (!citationIn) {
 
 			oeuvreEnCour.addContent(cits);
 		}
-		enregistreXML();// on sauvegarde les changement
+		enregistreXML();// on sauvegarde les changements
 
 	}
 
@@ -104,8 +104,8 @@ public class EnregistrementCitation {
 	 * @param nomFichier
 	 *            le texte que l'on étudie
 	 * @param br
-	 *            le bufferReder de ce texte (pour eviter de recommencer au
-	 *            debut)
+	 *            le bufferReder de ce texte (pour éviter de recommencer au
+	 *            début)
 	 * @return
 	 */
 	BufferedReader getCitation(String nomFichier, BufferedReader br) {
@@ -139,7 +139,7 @@ public class EnregistrementCitation {
 					}
 
 					// si ce n'est pas une citation les ajouter dans une liste
-					// conteant le reste du texte
+					// contenant le reste du texte
 					resteDuTexte.add(result);
 				}
 
@@ -149,14 +149,14 @@ public class EnregistrementCitation {
 
 		}
 
-		citations = organiseListe(citations);// a retirer quand on décommente
+		citations = organiseListe(citations);
 		testAjoutCitation(racine, citations);
 
 		return br;
 	}
 
 	/**
-	 * permet de séparer les citations contenu dans le même paragraphe
+	 * permet de séparer les citations contenues dans le même paragraphe
 	 *
 	 * @param ligne
 	 *            le paragraphe en question
@@ -182,8 +182,8 @@ public class EnregistrementCitation {
 		ligneT = ligne.substring(pointavant, point);//on récupére ce qu'il y a avant le premier point
 		Matcher m = p.matcher(ligneT);
 		Matcher m3 = p2.matcher(ligneT);
-		//si ce qu'il y a avant le point est de taille avec au moins un chiffre alors on c'est que c'est le début d'une citation
-		//les lettres permettent d'être résistant aux probléme d'OCR
+		//si ce qu'il y a avant le point est de taille avec au moins un chiffre alors on sait que c'est le début d'une citation
+		//les lettres permettent d'être résistant aux problémes d'OCR
 		if (ligneT.length() <= 3 && m.matches() && m3.matches()) {
 			debutCitation = point;
 		}
@@ -203,7 +203,7 @@ public class EnregistrementCitation {
 
 						Matcher m2 = p.matcher(ligneT);
 						Matcher m4 = p2.matcher(ligneT);
-						//on test si l'on a trouvé le debut de citation
+						//on teste si l'on a trouvé le début de citation
 						if (m2.matches() && m4.matches()) {
 							// on a trouvé la citation
 							debutCitation = point;
@@ -217,10 +217,10 @@ public class EnregistrementCitation {
 		}
 
 		position = debutCitation + 1;
-		//tant qu'il y a d'autre citation
+		//tant qu'il y a d'autres citations
 		while (nextCitations(ligne, position) != -1) {
-			nextCitationStart = nextCitations(ligne, position);//on enregistre l'endroit ou débute la prochaine citation
-																//c'est à dire l'endroit ou termine celle ci
+			nextCitationStart = nextCitations(ligne, position);//on enregistre l'endroit où débute la prochaine citation
+																//c'est à dire l'endroit où termine celle ci
 
 			if (position - (ligneT.length() + 1) > -1) {
 				ajout = ligne.substring(position - (ligneT.length() + 1),
@@ -278,13 +278,13 @@ public class EnregistrementCitation {
 
 		if (point == -1) {
 			// si il n'y a pas de "." alors ca ne peut pas être une citation
-			// on considére qu'il n'y aura jamais + de 1000 citation par texte
+			// on considére qu'il n'y aura jamais + de 1000 citations par texte
 			return false;
 		}
 		while (point != -1) {
 
 			// on récupére ce qu'il y a avant le point
-			// on commence par faire une sous chaine du debut jusqu'au point
+			// on commence par faire une sous chaine du début jusqu'au point
 			// on récupére ce qu'il y a avant le point
 			if (point == pointavant) {
 				// dans ce cas le point est a la position 0
@@ -307,7 +307,7 @@ public class EnregistrementCitation {
 
 			if (ligneT.length() <= 3 && m3.matches() && m4.matches()) {
 
-				return true;// dans ce cas on sais qu'il y a des citations ,
+				return true;// dans ce cas on sait qu'il y a des citations ,
 							// sinon on continue de chercher
 			} else {
 				pointavant = point;
@@ -329,18 +329,18 @@ public class EnregistrementCitation {
 					ligneT = ligneT.substring(ligneT.lastIndexOf(' '),
 							ligneT.length());// on récupére juste le point
 
-					// on doit également vérifié que ca ne contiens pas d'espace
+					// on doit également vérifier que ca ne contient pas d'espace
 					Matcher m = p.matcher(ligneT);
 					Matcher m2 = p2.matcher(ligneT);
 
 					boolean casFauxPositif = ligneT.equals(" p")
-							|| ligneT.equals("(éd.");// ici on va géré les
-														// "faux positif"
+							|| ligneT.equals("(éd.");// ici on va gérer les
+														// "faux positifs"
 
 					if (ligneT.length() <= 3 && m.matches() && m2.matches()
 							&& ligneT.length() > 0 && !casFauxPositif) {
 
-						return true;// dans ce cas on sais qu'il y a des
+						return true;// dans ce cas on sait qu'il y a des
 									// citations , sinon on continue de chercher
 					} else {
 						pointavant = point;
@@ -360,13 +360,13 @@ public class EnregistrementCitation {
 	}
 
 	/**
-	 * renvoie la position du debut de la prochaine citation
+	 * renvoie la position du début de la prochaine citation dans le paragraphe
 	 *
 	 * @param position
-	 *            la position de la derniere citation trouvé
+	 *            la position de la derniere citation trouvée
 	 * @param ligne
-	 *            le paragraphe ou l'on chercher
-	 * @return -1 si il n'y a plus de citation sinon renvoie la position de la
+	 *            le paragraphe où l'on cherche
+	 * @return -1 si il n'y a plus de citation, sinon renvoie la position de la
 	 *         prochaine citation
 	 */
 	public int nextCitations(String ligne, int position) {
@@ -386,7 +386,7 @@ public class EnregistrementCitation {
 		while (recherche.indexOf(".", i) != -1 && verif) {
 
 			if (recherche.indexOf(".", i + 1) == -1) {
-				// il faut arrété la rechercher maintenant ,
+				// il faut arréter la recherche maintenant ,
 
 				return -1;
 			} else {
@@ -398,7 +398,7 @@ public class EnregistrementCitation {
 
 				testE = recherche.substring(pointAvant, point).lastIndexOf(" ");
 
-				// on récupére le "numero" avant le prochain point
+				// on récupére le "numéro" avant le prochain point
 				if (testE == -1) {
 					numero = recherche.substring(pointAvant, point);
 
@@ -408,7 +408,7 @@ public class EnregistrementCitation {
 					taille = numero.length();
 
 				}
-				// on verifie si on a le resultat
+				// on verifie si on a le résultat
 
 				Matcher m = p.matcher(numero);
 				Matcher m2 = p2.matcher(numero);
@@ -423,12 +423,12 @@ public class EnregistrementCitation {
 					return point - taille + position;
 
 				} else {
-					// on continue a chercher
+					// on continue de chercher
 
 
-					// dans le cas ou on a trouve une page il faut ignorer ce
+					// dans le cas où on a trouver une page il faut ignorer ce
 					// qu'il y a avant le prochain point car il s'agira du
-					// numero de page
+					// numéro de page.
 
 					if (numero.equals("p") || numero.equals("chap")) {
 						i = point + 1;
@@ -448,7 +448,7 @@ public class EnregistrementCitation {
 
 	}
 	/**
-	 * Enregistre les changement dans notre document XML
+	 * Enregistre les changements dans notre document XML
 	 */
 	private void enregistreXML() {
 		XMLOutputter sortie = new XMLOutputter(Format.getPrettyFormat());
@@ -464,26 +464,29 @@ public class EnregistrementCitation {
 
 	/**
 	 * Permet de modifier la liste de citations pour la rendre plus lisible
-	 *
+	 * ex: <citation> 1: Je suis un aigle voir George p. </citation>
+	 *     <citations> 32. Livre de la vie. </citation>
+	 *  Devient
+	 *	<citation> 1: Je suis un aigle voir George p32. Livre de la vie. </citation>
 	 * @param citations
 	 *            la liste des citations
 	 * @return la liste des citations réorganiser
 	 */
 	public ArrayList<String> organiseListe(ArrayList<String> citations) {
-		boolean citationNonComplete = true;// permet de continuer a modifier une
+		boolean citationNonComplete = true;// permet de continuer à modifier une
 											// citation
 		Pattern p = Pattern.compile("[0-9]*");
 		if (citations.size() > 0) {
-			citations.remove(0);// dans ce cas on supprime la premiere ligne
+			citations.remove(0);// dans ce cas on supprime la première ligne
 								// contenant le DOI
 
-			// pour chaque element de la liste on va effectuer différent
-			// traitement
+			// pour chaque élèment de la liste on va effectuer différents
+			// traitements
 			for (int i = 1; i < citations.size(); i++) {
 				citationNonComplete = true;
 				// si la citation commence par un ./p. ou si elle n'en a pas
-				// alors c'est la suite de celle du dessus de meme si la taille
-				// est infférieur a 3
+				// alors c'est la suite de celle du dessus de même si la taille
+				// est inférieure à 3
 				if (citations.get(i).startsWith(".")
 						|| citations.get(i).startsWith("p.")
 						|| citations.get(i).indexOf(".") == -1
@@ -496,7 +499,7 @@ public class EnregistrementCitation {
 
 				} else {
 
-					// si le point n'est pas au debut alors il y a des choses a
+					// si le point n'est pas au début alors il y a des choses à
 					// supprimer
 					while (citations.get(i).indexOf(".") >= 3
 							&& citationNonComplete) {
@@ -512,7 +515,7 @@ public class EnregistrementCitation {
 						citations.set(i, newcitation);
 
 					}
-					// si le premier est a la fin de la citation elle ne devrait
+					// si le premier est à la fin de la citation elle ne devrait
 					// pas y etre
 					if (citations.get(i).indexOf(".") == citations.get(i)
 							.length() - 1) {

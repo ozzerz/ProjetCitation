@@ -1,10 +1,10 @@
-package pdfToText;
+package pdfHelper;
 
 import java.util.ArrayList;
 
 public class EnregistrementPositionCitation {
 	/**
-	 * La liste contenant tout le texte a l'éxception des citations
+	 * La liste contenant tout le texte a l'exception des citations
 	 */
 	ArrayList<String> resteDuTexte;
 

@@ -11,7 +11,7 @@ import org.jdom2.input.SAXBuilder;
 import org.junit.Test;
 
 import bddHelper.FormatageCitation;
-import pdfToText.EnregistrementCitation;
+import pdfHelper.EnregistrementCitation;
 
 public class FormatageCitationTestCase extends TestCase {
 

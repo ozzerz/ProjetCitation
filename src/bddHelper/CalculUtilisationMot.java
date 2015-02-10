@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import org.jdom2.Document;
 /**
- * Cette classe a pour but de calculer l'utilisation de chaque mot
+ * Cette classe à pour but de calculer l'utilisation de chaque mot
  * On peut imaginer que si un mot est peu utilisé alors il est important pour une citation
  * Cette classe sera donc utilisé dans FormatageCitation
  * Pour améliorer cette classe on peut imaginer enregistrer les resultats dans un fichier CSV
@@ -75,8 +75,8 @@ public class CalculUtilisationMot {
 		return motsPeuUtiliser;
 	}
 	/**
-	 * Calcul pour une citations
-	 * @param citation
+	 * Calcul de l'utilisation de chaque mot dans une citation
+	 * @param citation : la citation
 	 */
 	public void compteMotUneCitation(String citation)
 	{
@@ -104,7 +104,7 @@ public class CalculUtilisationMot {
 	}
 
 	/**
-	 * Si le mot est dans la liste on ajoute 1 a son nombre sinon on l'ajoute
+	 * Si le mot est dans la liste on ajoute 1 a son nombre (dans nbUtilisation) sinon on l'ajoute dans mots et on initalise nbUtilisation à 1
 	 * @param mot le mot a ajouter
 	 */
 	public void addMot(String motAjout)
